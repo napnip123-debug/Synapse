@@ -67,7 +67,7 @@
         .app-name { font-size: 12px; color: #94a3b8 }
         .app-cost { font-size: 10px; color: #06b6d4; margin-top: 4px }
         .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid rgba(100, 116, 139, 0.1) }
-        .volume-control { position: absolute; top: 60px; right: 20px; background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 8px }
+        .volume-control { position: absolute; top: 60px; right: 20px; background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: 20 }
         .volume-slider { width: 100px; height: 4px; -webkit-appearance: none; background: rgba(6, 182, 212, 0.2); border-radius: 2px; outline: none }
         .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: #06b6d4; border-radius: 50%; cursor: pointer }
         .alert { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #ef4444; color: #fff; padding: 12px 24px; border-radius: 12px; font-size: 14px; z-index: 100; animation: slideIn 0.3s }
@@ -102,25 +102,6 @@
             { id: 'anki', name: 'Anki', work: 10, break: 2 },
             { id: 'deep', name: 'Deep Work', work: 50, break: 10 },
             { id: 'marathon', name: 'Marathon', work: 90, break: 20 }
-        ];
-
-        const RANKS = [
-            { name: 'Pre-med', minHours: 0, icon: '📖' },
-            { name: 'M1', minHours: 10, icon: '🩺' },
-            { name: 'M2', minHours: 25, icon: '📋' },
-            { name: 'Clerk', minHours: 50, icon: '👨‍⚕️' },
-            { name: 'Intern', minHours: 100, icon: '💉' },
-            { name: 'Resident', minHours: 200, icon: '🏥' },
-            { name: 'Fellow', minHours: 350, icon: '🎓' },
-            { name: 'Attending', minHours: 500, icon: '⭐' },
-            { name: 'Chair', minHours: 1000, icon: '👑' }
-        ];
-
-        const BADGES = [
-            { id: 'first', name: 'First Steps', icon: '🎯', check: s => s.totalSessions >= 1 },
-            { id: 'week', name: 'Week Warrior', icon: '🔥', check: s => s.currentStreak >= 7 },
-            { id: 'century', name: 'Centurion', icon: '💯', check: s => s.totalSessions >= 100 },
-            { id: 'night', name: 'Night Owl', icon: '🦉', check: s => s.nightOwl }
         ];
 
         const VAULT_APPS = [
@@ -173,6 +154,83 @@
 
         let timerInterval = null;
         let audioContext = null;
+        let audioNodes = [];
+
+        // --- AUDIO ENGINE ---
+        function startAudio() {
+            if (state.audioEnvironment === 'silent') return;
+            stopAudio();
+
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!audioContext) audioContext = new AudioContext();
+                
+                // Brown Noise Generator
+                if (state.audioEnvironment === 'brown') {
+                    const bufferSize = 2 * audioContext.sampleRate;
+                    const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    let lastOut = 0;
+                    for (let i = 0; i < bufferSize; i++) {
+                        const white = Math.random() * 2 - 1;
+                        data[i] = (lastOut + (0.02 * white)) / 1.02;
+                        lastOut = data[i];
+                        data[i] *= 3.5; 
+                    }
+                    const noise = audioContext.createBufferSource();
+                    noise.buffer = buffer;
+                    noise.loop = true;
+                    const gain = audioContext.createGain();
+                    gain.gain.value = state.volume * 0.5;
+                    noise.connect(gain);
+                    gain.connect(audioContext.destination);
+                    noise.start();
+                    audioNodes.push(noise);
+                } 
+                // Rain Noise Generator (Pinkish)
+                else if (state.audioEnvironment === 'rain') {
+                   const bufferSize = 2 * audioContext.sampleRate;
+                   const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+                   const data = buffer.getChannelData(0);
+                   for(let i=0; i<bufferSize; i++) {
+                       let b0, b1, b2, b3, b4, b5, b6;
+                       b0 = b1 = b2 = b3 = b4 = b5 = b6 = 0.0;
+                       let white = Math.random() * 2 - 1;
+                       b0 = 0.99886 * b0 + white * 0.0555179;
+                       b1 = 0.99332 * b1 + white * 0.0750759;
+                       b2 = 0.96900 * b2 + white * 0.1538520;
+                       b3 = 0.86650 * b3 + white * 0.3104856;
+                       b4 = 0.55000 * b4 + white * 0.5329522;
+                       b5 = -0.7616 * b5 - white * 0.0168980;
+                       data[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+                       data[i] *= 0.11; 
+                       b6 = white * 0.115926;
+                   }
+                   const noise = audioContext.createBufferSource();
+                   noise.buffer = buffer;
+                   noise.loop = true;
+                   const gain = audioContext.createGain();
+                   gain.gain.value = state.volume;
+                   noise.connect(gain);
+                   gain.connect(audioContext.destination);
+                   noise.start();
+                   audioNodes.push(noise);
+                }
+            } catch (e) {
+                console.log("Audio not supported or blocked", e);
+            }
+        }
+
+        function stopAudio() {
+            audioNodes.forEach(node => { try { node.stop(); } catch {} });
+            audioNodes = [];
+        }
+
+        function updateVolume() {
+            // Very basic volume update - for real time we'd need to store gain nodes
+            // For this simple version, we just restart audio if running
+            if (state.timerState === 'running') startAudio();
+        }
 
         function startTimer() {
             if (state.timerState === 'running') return;
@@ -181,11 +239,13 @@
                 state.isBreak = false;
             }
             state.timerState = 'running';
-            // Placeholder for audio start
+            startAudio(); 
+            
             timerInterval = setInterval(() => {
                 state.timeRemaining--;
                 if (state.timeRemaining <= 0) {
                     clearInterval(timerInterval);
+                    stopAudio();
                     if (state.isBreak) {
                         state.timerState = 'idle';
                         state.timeRemaining = getPreset().work * 60;
@@ -205,6 +265,7 @@
             if (state.strictnessLevel !== 'intern') return showAlert('Cannot pause!', 'error');
             clearInterval(timerInterval);
             state.timerState = 'paused';
+            stopAudio();
             render();
         }
 
@@ -213,6 +274,7 @@
             state.timerState = 'idle';
             state.timeRemaining = getPreset().work * 60;
             state.isBreak = false;
+            stopAudio();
             render();
         }
 
@@ -259,7 +321,8 @@
                 { id: 'timer', icon: '⏱️', label: 'Timer' },
                 { id: 'dashboard', icon: '📊', label: 'Chart' },
                 { id: 'profile', icon: '👤', label: 'Profile' },
-                { id: 'vault', icon: '🎁', label: 'Vault' }
+                { id: 'vault', icon: '🎁', label: 'Vault' },
+                { id: 'settings', icon: '⚙️', label: 'Settings' } // Added Settings Back
             ];
             return `<nav class="nav">${items.map(i => `<button class="nav-btn ${state.screen === i.id ? 'active' : ''}" data-screen="${i.id}"><span style="font-size:20px;">${i.icon}</span><span>${i.label}</span></button>`).join('')}</nav>`;
         }
@@ -270,6 +333,7 @@
             if (state.screen === 'dashboard') return renderDashboard();
             if (state.screen === 'profile') return renderProfile();
             if (state.screen === 'vault') return renderVault();
+            if (state.screen === 'settings') return renderSettings(); // Added Settings Screen Logic
             return renderHome();
         }
 
@@ -284,7 +348,10 @@
             if (state.timerState === 'exitTicket') return renderExitTicket();
             const total = state.isBreak ? getPreset().break * 60 : getPreset().work * 60;
             const progress = ((total - state.timeRemaining) / total) * 100;
-            return `<div class="screen"><div class="timer-display"><div class="timer-time ${state.timerState==='running'?'pulsing':''}">${formatTime(state.timeRemaining)}</div><div class="timer-label">${state.isBreak?'Break':'Focus'}</div></div>
+            return `<div class="screen">
+            <div style="text-align:right; margin-bottom:10px;"><button class="timer-btn" style="width:40px;height:40px;font-size:16px;margin-left:auto;" id="volumeBtn">🔊</button></div>
+            ${state.showVolume ? `<div class="volume-control"><input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="${state.volume * 100}" /></div>` : ''}
+            <div class="timer-display"><div class="timer-time ${state.timerState==='running'?'pulsing':''}">${formatTime(state.timeRemaining)}</div><div class="timer-label">${state.isBreak?'Break':'Focus'}</div></div>
             <div class="timer-controls"><button class="timer-btn" id="resetBtn">↺</button>${state.timerState === 'running' ? `<button class="timer-btn primary" id="pauseBtn">⏸</button>` : `<button class="timer-btn primary" id="playBtn">▶</button>`}</div></div>`;
         }
 
@@ -311,6 +378,21 @@
             <div class="card"><div class="app-grid">${VAULT_APPS.map(a => `<div class="app-item ${state.stats.vaultBalance < a.cost ? 'locked' : ''}" onclick="unlockApp('${a.name}', ${a.cost})"><div class="app-icon">${a.icon}</div><div class="app-name">${a.name}</div><div class="app-cost">${a.cost}m</div></div>`).join('')}</div></div></div>`;
         }
 
+        // --- ADDED SETTINGS SCREEN ---
+        function renderSettings() {
+            return `<div class="screen"><h2 style="margin-bottom:20px;">⚙️ Settings</h2>
+            <div class="card"><div class="card-title">Audio Environment</div><select class="select" id="audioSelect">
+            <option value="silent" ${state.audioEnvironment === 'silent' ? 'selected' : ''}>🔇 Silent</option>
+            <option value="brown" ${state.audioEnvironment === 'brown' ? 'selected' : ''}>🟤 Brown Noise</option>
+            <option value="rain" ${state.audioEnvironment === 'rain' ? 'selected' : ''}>🌧️ Rain</option>
+            </select></div>
+            <div class="card"><div class="card-title">Strictness</div><select class="select" id="strictnessSelect">
+            <option value="intern" ${state.strictnessLevel === 'intern' ? 'selected' : ''}>Intern (Easy)</option>
+            <option value="surgeon" ${state.strictnessLevel === 'surgeon' ? 'selected' : ''}>Surgeon (Hard)</option>
+            </select></div>
+            <div class="card"><button class="btn" style="background:#ef4444;" id="resetDataBtn">Reset Data</button></div></div>`;
+        }
+
         function unlockApp(name, cost) {
             if(state.stats.vaultBalance >= cost) {
                 state.stats.vaultBalance -= cost;
@@ -333,6 +415,15 @@
             
             const subSel = document.getElementById('subjectSelect'); if(subSel) subSel.onchange = (e) => state.selectedSubject = e.target.value;
             const preSel = document.getElementById('presetSelect'); if(preSel) preSel.onchange = (e) => { state.selectedPreset = e.target.value; };
+            
+            // Audio & Settings Events
+            const audioSel = document.getElementById('audioSelect'); if(audioSel) audioSel.onchange = (e) => state.audioEnvironment = e.target.value;
+            const strictSel = document.getElementById('strictnessSelect'); if(strictSel) strictSel.onchange = (e) => state.strictnessLevel = e.target.value;
+            
+            const volBtn = document.getElementById('volumeBtn'); if(volBtn) volBtn.onclick = () => { state.showVolume = !state.showVolume; render(); };
+            const volSlide = document.getElementById('volumeSlider'); if(volSlide) volSlide.oninput = (e) => { state.volume = e.target.value/100; updateVolume(); };
+            
+            const resetDataBtn = document.getElementById('resetDataBtn'); if(resetDataBtn) resetDataBtn.onclick = () => { if(confirm('Reset all stats?')) { localStorage.clear(); location.reload(); }};
         }
 
         // Initialize
