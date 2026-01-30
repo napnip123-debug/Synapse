@@ -1,0 +1,19 @@
+{
+  "name": "Synapse: Proof-of-Work Focus Tool",
+  "short_name": "Synapse",
+  "description": "The anti-cheat focus app for medical students with active recall verification and RPG progression",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0891b2",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='64' fill='%230f172a'/><circle cx='256' cy='200' r='80' fill='none' stroke='%2306b6d4' stroke-width='16'/><path d='M176 320 c0 60 36 100 80 120 c44-20 80-60 80-120' fill='none' stroke='%2306b6d4' stroke-width='16'/><circle cx='256' cy='200' r='20' fill='%2306b6d4'/><path d='M256 140 v-40 M256 260 v40 M196 200 h-40 M316 200 h40' stroke='%2306b6d4' stroke-width='12' stroke-linecap='round'/><path d='M220 340 q36 30 72 0' fill='none' stroke='%2322d3ee' stroke-width='8'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
