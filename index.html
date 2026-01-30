@@ -4,874 +4,140 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Synapse - Medical Study Focus App</title>
-    <meta name="description" content="The anti-cheat focus app for medical students with active recall verification and RPG progression" />
-    <meta name="theme-color" content="#0891b2" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <link rel="manifest" href="./manifest.json" />
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0
-        }
-
-        html {
-            font-family: system-ui, -apple-system, sans-serif;
-            background: #0f172a;
-            color: #fff;
-            height: 100%
-        }
-
-        body {
-            height: 100%;
-            overflow-x: hidden
-        }
-
-        #root {
-            height: 100%
-        }
-
-        .app {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)
-        }
-
-        .nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(6, 182, 212, 0.2);
-            display: flex;
-            justify-content: space-around;
-            padding: 8px 0;
-            z-index: 50
-        }
-
-        .nav-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            padding: 8px 16px;
-            background: none;
-            border: none;
-            color: #94a3b8;
-            font-size: 10px;
-            cursor: pointer;
-            transition: all 0.2s
-        }
-
-        .nav-btn.active,
-        .nav-btn:hover {
-            color: #06b6d4
-        }
-
-        .nav-btn svg {
-            width: 24px;
-            height: 24px
-        }
-
-        .screen {
-            padding: 20px;
-            padding-bottom: 100px;
-            max-width: 500px;
-            margin: 0 auto
-        }
-
-        .header {
-            text-align: center;
-            padding: 40px 20px
-        }
-
-        .logo {
-            font-size: 48px;
-            margin-bottom: 16px
-        }
-
-        .title {
-            font-size: 28px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #06b6d4, #22d3ee);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text
-        }
-
-        .subtitle {
-            color: #94a3b8;
-            margin-top: 8px;
-            font-size: 14px
-        }
-
-        .card {
-            background: rgba(30, 41, 59, 0.8);
-            border: 1px solid rgba(6, 182, 212, 0.2);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px
-        }
-
-        .card-title {
-            font-size: 12px;
-            color: #06b6d4;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 12px
-        }
-
-        .select {
-            width: 100%;
-            padding: 12px 16px;
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid rgba(6, 182, 212, 0.3);
-            border-radius: 12px;
-            color: #fff;
-            font-size: 16px;
-            cursor: pointer
-        }
-
-        .select option {
-            background: #1e293b;
-            color: #fff
-        }
-
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #0891b2, #06b6d4);
-            color: #fff
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 40px rgba(6, 182, 212, 0.3)
-        }
-
-        .timer-display {
-            text-align: center;
-            padding: 60px 20px
-        }
-
-        .timer-time {
-            font-size: 80px;
-            font-weight: 200;
-            font-family: 'SF Mono', monospace;
-            background: linear-gradient(135deg, #06b6d4, #22d3ee);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent
-        }
-
-        .timer-label {
-            color: #94a3b8;
-            font-size: 14px;
-            margin-top: 8px
-        }
-
-        .timer-controls {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            margin-top: 32px
-        }
-
-        .timer-btn {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            border: 2px solid rgba(6, 182, 212, 0.3);
-            background: rgba(6, 182, 212, 0.1);
-            color: #06b6d4;
-            font-size: 24px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s
-        }
-
-        .timer-btn:hover {
-            background: rgba(6, 182, 212, 0.2);
-            transform: scale(1.05)
-        }
-
-        .timer-btn.primary {
-            background: linear-gradient(135deg, #0891b2, #06b6d4);
-            border: none;
-            color: #fff;
-            width: 80px;
-            height: 80px
-        }
-
-        .progress-ring {
-            width: 280px;
-            height: 280px;
-            margin: 0 auto
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px
-        }
-
-        .stat-card {
-            background: rgba(30, 41, 59, 0.6);
-            border: 1px solid rgba(6, 182, 212, 0.1);
-            border-radius: 12px;
-            padding: 16px;
-            text-align: center
-        }
-
-        .stat-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: #06b6d4
-        }
-
-        .stat-label {
-            font-size: 11px;
-            color: #64748b;
-            margin-top: 4px;
-            text-transform: uppercase
-        }
-
-        .exit-ticket {
-            padding: 20px
-        }
-
-        .exit-ticket h2 {
-            font-size: 24px;
-            text-align: center;
-            margin-bottom: 8px
-        }
-
-        .exit-ticket p {
-            color: #94a3b8;
-            text-align: center;
-            margin-bottom: 24px
-        }
-
-        .exit-ticket textarea {
-            width: 100%;
-            min-height: 200px;
-            padding: 16px;
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid rgba(6, 182, 212, 0.3);
-            border-radius: 12px;
-            color: #fff;
-            font-size: 16px;
-            resize: vertical;
-            font-family: inherit
-        }
-
-        .exit-ticket textarea::placeholder {
-            color: #64748b
-        }
-
-        .bullet-count {
-            text-align: right;
-            color: #64748b;
-            font-size: 12px;
-            margin-top: 8px
-        }
-
-        .profile-header {
-            text-align: center;
-            padding: 40px 20px
-        }
-
-        .avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #0891b2, #06b6d4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 48px;
-            margin: 0 auto 16px
-        }
-
-        .rank {
-            font-size: 24px;
-            font-weight: 700
-        }
-
-        .rank-subtitle {
-            color: #94a3b8;
-            font-size: 14px
-        }
-
-        .progress-bar {
-            height: 8px;
-            background: rgba(6, 182, 212, 0.2);
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 16px 0
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #0891b2, #06b6d4);
-            border-radius: 4px;
-            transition: width 0.3s
-        }
-
-        .badges {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 16px
-        }
-
-        .badge {
-            padding: 8px 12px;
-            background: rgba(6, 182, 212, 0.1);
-            border: 1px solid rgba(6, 182, 212, 0.3);
-            border-radius: 20px;
-            font-size: 12px;
-            color: #06b6d4
-        }
-
-        .badge.locked {
-            opacity: 0.4;
-            color: #64748b;
-            border-color: rgba(100, 116, 139, 0.3)
-        }
-
-        .heatmap {
-            display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            gap: 3px
-        }
-
-        .heatmap-cell {
-            aspect-ratio: 1;
-            border-radius: 2px;
-            background: rgba(6, 182, 212, 0.1)
-        }
-
-        .heatmap-cell.l1 {
-            background: rgba(6, 182, 212, 0.3)
-        }
-
-        .heatmap-cell.l2 {
-            background: rgba(6, 182, 212, 0.5)
-        }
-
-        .heatmap-cell.l3 {
-            background: rgba(6, 182, 212, 0.7)
-        }
-
-        .heatmap-cell.l4 {
-            background: #06b6d4
-        }
-
-        .vault-balance {
-            text-align: center;
-            padding: 32px;
-            background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(34, 211, 238, 0.05));
-            border-radius: 16px;
-            margin-bottom: 24px
-        }
-
-        .vault-amount {
-            font-size: 48px;
-            font-weight: 700;
-            color: #06b6d4
-        }
-
-        .vault-label {
-            color: #94a3b8;
-            font-size: 14px
-        }
-
-        .app-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px
-        }
-
-        .app-item {
-            text-align: center;
-            padding: 16px;
-            background: rgba(30, 41, 59, 0.6);
-            border: 1px solid rgba(6, 182, 212, 0.1);
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s
-        }
-
-        .app-item:hover {
-            border-color: rgba(6, 182, 212, 0.3);
-            transform: translateY(-2px)
-        }
-
-        .app-item.locked {
-            opacity: 0.5
-        }
-
-        .app-icon {
-            font-size: 32px;
-            margin-bottom: 8px
-        }
-
-        .app-name {
-            font-size: 12px;
-            color: #94a3b8
-        }
-
-        .app-cost {
-            font-size: 10px;
-            color: #06b6d4;
-            margin-top: 4px
-        }
-
-        .settings-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 0;
-            border-bottom: 1px solid rgba(100, 116, 139, 0.1)
-        }
-
-        .settings-item:last-child {
-            border-bottom: none
-        }
-
-        .settings-label {
-            font-size: 14px
-        }
-
-        .settings-value {
-            color: #06b6d4;
-            font-size: 14px
-        }
-
-        .toggle {
-            width: 48px;
-            height: 28px;
-            background: rgba(100, 116, 139, 0.3);
-            border-radius: 14px;
-            position: relative;
-            cursor: pointer;
-            transition: background 0.2s
-        }
-
-        .toggle.active {
-            background: #06b6d4
-        }
-
-        .toggle::after {
-            content: '';
-            position: absolute;
-            width: 24px;
-            height: 24px;
-            background: #fff;
-            border-radius: 50%;
-            top: 2px;
-            left: 2px;
-            transition: transform 0.2s
-        }
-
-        .toggle.active::after {
-            transform: translateX(20px)
-        }
-
-        .alert {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #ef4444;
-            color: #fff;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-size: 14px;
-            z-index: 100;
-            animation: slideIn 0.3s
-        }
-
-        .alert.success {
-            background: #10b981
-        }
-
-        .alert.warning {
-            background: #f59e0b
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-50%) translateY(-20px)
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0)
-            }
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1
-            }
-
-            50% {
-                opacity: 0.5
-            }
-        }
-
-        .pulsing {
-            animation: pulse 2s infinite
-        }
-
-        .face-down-indicator {
-            position: fixed;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(239, 68, 68, 0.9);
-            color: #fff;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px
-        }
-
-        .face-down-indicator.ok {
-            background: rgba(16, 185, 129, 0.9)
-        }
-
-        .volume-control {
-            position: absolute;
-            top: 60px;
-            right: 20px;
-            background: rgba(30, 41, 59, 0.95);
-            border: 1px solid rgba(6, 182, 212, 0.2);
-            border-radius: 12px;
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px
-        }
-
-        .volume-slider {
-            width: 100px;
-            height: 4px;
-            -webkit-appearance: none;
-            background: rgba(6, 182, 212, 0.2);
-            border-radius: 2px;
-            outline: none
-        }
-
-        .volume-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 16px;
-            height: 16px;
-            background: #06b6d4;
-            border-radius: 50%;
-            cursor: pointer
-        }
-
-        .hidden {
-            display: none
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0 }
+        html { font-family: system-ui, -apple-system, sans-serif; background: #0f172a; color: #fff; height: 100% }
+        body { height: 100%; overflow-x: hidden }
+        #root { height: 100% }
+        .app { min-height: 100vh; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%) }
+        .nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border-top: 1px solid rgba(6, 182, 212, 0.2); display: flex; justify-content: space-around; padding: 8px 0; z-index: 50 }
+        .nav-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 16px; background: none; border: none; color: #94a3b8; font-size: 10px; cursor: pointer; transition: all 0.2s }
+        .nav-btn.active, .nav-btn:hover { color: #06b6d4 }
+        .screen { padding: 20px; padding-bottom: 100px; max-width: 500px; margin: 0 auto }
+        .header { text-align: center; padding: 40px 20px }
+        .logo { font-size: 48px; margin-bottom: 16px }
+        .title { font-size: 28px; font-weight: 700; background: linear-gradient(135deg, #06b6d4, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text }
+        .subtitle { color: #94a3b8; margin-top: 8px; font-size: 14px }
+        .card { background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 16px; padding: 20px; margin-bottom: 16px }
+        .card-title { font-size: 12px; color: #06b6d4; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px }
+        .select { width: 100%; padding: 12px 16px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 12px; color: #fff; font-size: 16px; cursor: pointer }
+        .select option { background: #1e293b; color: #fff }
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s }
+        .btn-primary { background: linear-gradient(135deg, #0891b2, #06b6d4); color: #fff }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(6, 182, 212, 0.3) }
+        .timer-display { text-align: center; padding: 60px 20px }
+        .timer-time { font-size: 80px; font-weight: 200; font-family: 'SF Mono', monospace; background: linear-gradient(135deg, #06b6d4, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent }
+        .timer-label { color: #94a3b8; font-size: 14px; margin-top: 8px }
+        .timer-controls { display: flex; gap: 12px; justify-content: center; margin-top: 32px }
+        .timer-btn { width: 64px; height: 64px; border-radius: 50%; border: 2px solid rgba(6, 182, 212, 0.3); background: rgba(6, 182, 212, 0.1); color: #06b6d4; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s }
+        .timer-btn:hover { background: rgba(6, 182, 212, 0.2); transform: scale(1.05) }
+        .timer-btn.primary { background: linear-gradient(135deg, #0891b2, #06b6d4); border: none; color: #fff; width: 80px; height: 80px }
+        .progress-ring { width: 280px; height: 280px; margin: 0 auto }
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px }
+        .stat-card { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(6, 182, 212, 0.1); border-radius: 12px; padding: 16px; text-align: center }
+        .stat-value { font-size: 24px; font-weight: 700; color: #06b6d4 }
+        .stat-label { font-size: 11px; color: #64748b; margin-top: 4px; text-transform: uppercase }
+        .exit-ticket { padding: 20px }
+        .exit-ticket h2 { font-size: 24px; text-align: center; margin-bottom: 8px }
+        .exit-ticket p { color: #94a3b8; text-align: center; margin-bottom: 24px }
+        .exit-ticket textarea { width: 100%; min-height: 200px; padding: 16px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 12px; color: #fff; font-size: 16px; resize: vertical; font-family: inherit }
+        .profile-header { text-align: center; padding: 40px 20px }
+        .avatar { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #0891b2, #06b6d4); display: flex; align-items: center; justify-content: center; font-size: 48px; margin: 0 auto 16px }
+        .rank { font-size: 24px; font-weight: 700 }
+        .rank-subtitle { color: #94a3b8; font-size: 14px }
+        .progress-bar { height: 8px; background: rgba(6, 182, 212, 0.2); border-radius: 4px; overflow: hidden; margin: 16px 0 }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #0891b2, #06b6d4); border-radius: 4px; transition: width 0.3s }
+        .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px }
+        .badge { padding: 8px 12px; background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 20px; font-size: 12px; color: #06b6d4 }
+        .badge.locked { opacity: 0.4; color: #64748b; border-color: rgba(100, 116, 139, 0.3) }
+        .heatmap { display: grid; grid-template-columns: repeat(12, 1fr); gap: 3px }
+        .heatmap-cell { aspect-ratio: 1; border-radius: 2px; background: rgba(6, 182, 212, 0.1) }
+        .heatmap-cell.l1 { background: rgba(6, 182, 212, 0.3) }
+        .heatmap-cell.l2 { background: rgba(6, 182, 212, 0.5) }
+        .heatmap-cell.l3 { background: rgba(6, 182, 212, 0.7) }
+        .heatmap-cell.l4 { background: #06b6d4 }
+        .vault-balance { text-align: center; padding: 32px; background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(34, 211, 238, 0.05)); border-radius: 16px; margin-bottom: 24px }
+        .vault-amount { font-size: 48px; font-weight: 700; color: #06b6d4 }
+        .vault-label { color: #94a3b8; font-size: 14px }
+        .app-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px }
+        .app-item { text-align: center; padding: 16px; background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(6, 182, 212, 0.1); border-radius: 12px; cursor: pointer; transition: all 0.2s }
+        .app-item:hover { border-color: rgba(6, 182, 212, 0.3); transform: translateY(-2px) }
+        .app-item.locked { opacity: 0.5 }
+        .app-icon { font-size: 32px; margin-bottom: 8px }
+        .app-name { font-size: 12px; color: #94a3b8 }
+        .app-cost { font-size: 10px; color: #06b6d4; margin-top: 4px }
+        .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid rgba(100, 116, 139, 0.1) }
+        .volume-control { position: absolute; top: 60px; right: 20px; background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 8px }
+        .volume-slider { width: 100px; height: 4px; -webkit-appearance: none; background: rgba(6, 182, 212, 0.2); border-radius: 2px; outline: none }
+        .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: #06b6d4; border-radius: 50%; cursor: pointer }
+        .alert { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #ef4444; color: #fff; padding: 12px 24px; border-radius: 12px; font-size: 14px; z-index: 100; animation: slideIn 0.3s }
+        .alert.success { background: #10b981 }
+        .alert.warning { background: #f59e0b }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-50%) translateY(-20px) } to { opacity: 1; transform: translateX(-50%) translateY(0) } }
+        @keyframes pulse { 0%, 100% { opacity: 1 } 50% { opacity: 0.5 } }
+        .pulsing { animation: pulse 2s infinite }
     </style>
 </head>
 <body>
     <div id="root"></div>
     <script>
-        // Synapse - Medical Study Focus App
-        // Complete standalone version
+        const SUBJECTS = [
+            { id: 'cardio', name: 'Cardiology', icon: '❤️', keywords: ['heart', 'cardiac', 'coronary', 'myocardial', 'arrhythmia', 'murmur', 'valve'] },
+            { id: 'neuro', name: 'Neurology', icon: '🧠', keywords: ['brain', 'neuron', 'synapse', 'cortex', 'cerebral', 'spinal', 'nerve'] },
+            { id: 'renal', name: 'Renal', icon: '🫘', keywords: ['kidney', 'nephron', 'glomerular', 'filtration', 'tubule', 'urine'] },
+            { id: 'gi', name: 'GI', icon: '🫁', keywords: ['stomach', 'intestine', 'liver', 'pancreas', 'digestion', 'enzyme'] },
+            { id: 'pulm', name: 'Pulmonology', icon: '🫁', keywords: ['lung', 'respiratory', 'bronchi', 'alveoli', 'oxygen'] },
+            { id: 'pharm', name: 'Pharmacology', icon: '💊', keywords: ['drug', 'receptor', 'agonist', 'antagonist', 'dose'] },
+            { id: 'micro', name: 'Microbiology', icon: '🦠', keywords: ['bacteria', 'virus', 'infection', 'antibiotic'] },
+            { id: 'biochem', name: 'Biochem', icon: '🧬', keywords: ['enzyme', 'protein', 'metabolism', 'atp'] },
+            { id: 'immuno', name: 'Immunology', icon: '🛡️', keywords: ['antibody', 'antigen', 'lymphocyte', 'cytokine'] },
+            { id: 'anatomy', name: 'Anatomy', icon: '🦴', keywords: ['bone', 'muscle', 'organ', 'tissue'] },
+            { id: 'path', name: 'Pathology', icon: '🔬', keywords: ['disease', 'lesion', 'neoplasm', 'inflammation'] },
+            { id: 'anki', name: 'Anki', icon: '📚', keywords: ['review', 'card', 'recall'] }
+        ];
 
-        const SUBJECTS = [{
-                id: 'cardio',
-                name: 'Cardiology',
-                icon: '❤️',
-                keywords: ['heart', 'cardiac', 'coronary', 'myocardial', 'arrhythmia', 'murmur', 'valve', 'atrial', 'ventricular', 'ecg', 'ekg']
-            },
-            {
-                id: 'neuro',
-                name: 'Neurology',
-                icon: '🧠',
-                keywords: ['brain', 'neuron', 'synapse', 'cortex', 'cerebral', 'spinal', 'nerve', 'reflex', 'stroke', 'seizure']
-            },
-            {
-                id: 'renal',
-                name: 'Renal Physiology',
-                icon: '🫘',
-                keywords: ['kidney', 'nephron', 'glomerular', 'filtration', 'tubule', 'creatinine', 'urine', 'electrolyte']
-            },
-            {
-                id: 'gi',
-                name: 'Gastroenterology',
-                icon: '🫁',
-                keywords: ['stomach', 'intestine', 'liver', 'pancreas', 'digestion', 'enzyme', 'bile', 'absorption']
-            },
-            {
-                id: 'pulm',
-                name: 'Pulmonology',
-                icon: '🫁',
-                keywords: ['lung', 'respiratory', 'bronchi', 'alveoli', 'oxygen', 'ventilation', 'asthma', 'copd']
-            },
-            {
-                id: 'pharm',
-                name: 'Pharmacology',
-                icon: '💊',
-                keywords: ['drug', 'receptor', 'agonist', 'antagonist', 'dose', 'mechanism', 'side effect', 'metabolism']
-            },
-            {
-                id: 'micro',
-                name: 'Microbiology',
-                icon: '🦠',
-                keywords: ['bacteria', 'virus', 'infection', 'antibiotic', 'gram', 'culture', 'pathogen', 'immune']
-            },
-            {
-                id: 'biochem',
-                name: 'Biochemistry',
-                icon: '🧬',
-                keywords: ['enzyme', 'protein', 'metabolism', 'atp', 'glucose', 'lipid', 'amino acid', 'pathway']
-            },
-            {
-                id: 'immuno',
-                name: 'Immunology',
-                icon: '🛡️',
-                keywords: ['antibody', 'antigen', 'lymphocyte', 'cytokine', 'complement', 'immunity', 'inflammation']
-            },
-            {
-                id: 'anatomy',
-                name: 'Anatomy',
-                icon: '🦴',
-                keywords: ['bone', 'muscle', 'organ', 'tissue', 'vessel', 'nerve', 'structure', 'body']
-            },
-            {
-                id: 'path',
-                name: 'Pathology',
-                icon: '🔬',
-                keywords: ['disease', 'lesion', 'neoplasm', 'inflammation', 'necrosis', 'biopsy', 'diagnosis']
-            },
-            {
-                id: 'anki',
-                name: 'Anki Review',
-                icon: '📚',
-                keywords: ['review', 'card', 'recall', 'memory', 'spaced', 'repetition']
-            }
+        const TIMER_PRESETS = [
+            { id: 'standard', name: 'Standard', work: 25, break: 5 },
+            { id: 'block', name: 'Block Exam', work: 60, break: 10 },
+            { id: 'anki', name: 'Anki', work: 10, break: 2 },
+            { id: 'deep', name: 'Deep Work', work: 50, break: 10 },
+            { id: 'marathon', name: 'Marathon', work: 90, break: 20 }
         ];
-        const TIMER_PRESETS = [{
-                id: 'standard',
-                name: 'Standard',
-                work: 25,
-                break: 5
-            },
-            {
-                id: 'block',
-                name: 'Block Exam',
-                work: 60,
-                break: 10
-            },
-            {
-                id: 'anki',
-                name: 'Anki Grind',
-                work: 10,
-                break: 2
-            },
-            {
-                id: 'deep',
-                name: 'Deep Work',
-                work: 50,
-                break: 10
-            },
-            {
-                id: 'marathon',
-                name: 'Marathon',
-                work: 90,
-                break: 20
-            }
+
+        const RANKS = [
+            { name: 'Pre-med', minHours: 0, icon: '📖' },
+            { name: 'M1', minHours: 10, icon: '🩺' },
+            { name: 'M2', minHours: 25, icon: '📋' },
+            { name: 'Clerk', minHours: 50, icon: '👨‍⚕️' },
+            { name: 'Intern', minHours: 100, icon: '💉' },
+            { name: 'Resident', minHours: 200, icon: '🏥' },
+            { name: 'Fellow', minHours: 350, icon: '🎓' },
+            { name: 'Attending', minHours: 500, icon: '⭐' },
+            { name: 'Chair', minHours: 1000, icon: '👑' }
         ];
-        const RANKS = [{
-                name: 'Pre-med',
-                minHours: 0,
-                icon: '📖'
-            },
-            {
-                name: 'M1',
-                minHours: 10,
-                icon: '🩺'
-            },
-            {
-                name: 'M2',
-                minHours: 25,
-                icon: '📋'
-            },
-            {
-                name: 'Clinical Clerk',
-                minHours: 50,
-                icon: '👨‍⚕️'
-            },
-            {
-                name: 'Intern',
-                minHours: 100,
-                icon: '💉'
-            },
-            {
-                name: 'Resident',
-                minHours: 200,
-                icon: '🏥'
-            },
-            {
-                name: 'Fellow',
-                minHours: 350,
-                icon: '🎓'
-            },
-            {
-                name: 'Attending',
-                minHours: 500,
-                icon: '⭐'
-            },
-            {
-                name: 'Department Chair',
-                minHours: 1000,
-                icon: '👑'
-            }
+
+        const BADGES = [
+            { id: 'first', name: 'First Steps', icon: '🎯', check: s => s.totalSessions >= 1 },
+            { id: 'week', name: 'Week Warrior', icon: '🔥', check: s => s.currentStreak >= 7 },
+            { id: 'century', name: 'Centurion', icon: '💯', check: s => s.totalSessions >= 100 },
+            { id: 'night', name: 'Night Owl', icon: '🦉', check: s => s.nightOwl }
         ];
-        const BADGES = [{
-                id: 'first',
-                name: 'First Steps',
-                desc: 'Complete first session',
-                icon: '🎯',
-                check: s => s.totalSessions >= 1
-            },
-            {
-                id: 'week',
-                name: 'Week Warrior',
-                desc: '7 day streak',
-                icon: '🔥',
-                check: s => s.currentStreak >= 7
-            },
-            {
-                id: 'neuro50',
-                name: 'The Neurologist',
-                desc: '50 hours of Neuro',
-                icon: '🧠',
-                check: s => (s.subjectHours?.neuro || 0) >= 50
-            },
-            {
-                id: 'cardio50',
-                name: 'The Cardiologist',
-                desc: '50 hours of Cardio',
-                icon: '❤️',
-                check: s => (s.subjectHours?.cardio || 0) >= 50
-            },
-            {
-                id: 'perfect10',
-                name: 'Perfect 10',
-                desc: '10 perfect exit tickets',
-                icon: '✨',
-                check: s => s.perfectExits >= 10
-            },
-            {
-                id: 'night',
-                name: 'Night Owl',
-                desc: 'Study after midnight',
-                icon: '🦉',
-                check: s => s.nightOwl
-            },
-            {
-                id: 'early',
-                name: 'Early Bird',
-                desc: 'Study before 6am',
-                icon: '🌅',
-                check: s => s.earlyBird
-            },
-            {
-                id: 'marathon',
-                name: 'Marathon Runner',
-                desc: 'Complete 90min session',
-                icon: '🏃',
-                check: s => s.marathonComplete
-            },
-            {
-                id: 'century',
-                name: 'Centurion',
-                desc: '100 sessions',
-                icon: '💯',
-                check: s => s.totalSessions >= 100
-            },
-            {
-                id: 'master',
-                name: 'Master',
-                desc: '500 total hours',
-                icon: '🏆',
-                check: s => s.totalHours >= 500
-            }
+
+        const VAULT_APPS = [
+            { id: 'instagram', name: 'Instagram', icon: '📷', cost: 15 },
+            { id: 'netflix', name: 'Netflix', icon: '🎬', cost: 30 },
+            { id: 'youtube', name: 'YouTube', icon: '▶️', cost: 20 },
+            { id: 'twitter', name: 'Twitter', icon: '🐦', cost: 10 }
         ];
-        const VAULT_APPS = [{
-                id: 'instagram',
-                name: 'Instagram',
-                icon: '📷',
-                cost: 15
-            },
-            {
-                id: 'netflix',
-                name: 'Netflix',
-                icon: '🎬',
-                cost: 30
-            },
-            {
-                id: 'youtube',
-                name: 'YouTube',
-                icon: '▶️',
-                cost: 20
-            },
-            {
-                id: 'twitter',
-                name: 'Twitter',
-                icon: '🐦',
-                cost: 10
-            },
-            {
-                id: 'tiktok',
-                name: 'TikTok',
-                icon: '🎵',
-                cost: 15
-            },
-            {
-                id: 'games',
-                name: 'Games',
-                icon: '🎮',
-                cost: 30
-            }
-        ];
-        // State
+
         let state = {
             screen: 'home',
-            selectedSubject: SUBJECTS[0].id,
-            selectedPreset: TIMER_PRESETS[0].id,
-            timerState: 'idle', // idle, running, paused, break, exitTicket
-            timeRemaining: TIMER_PRESETS[0].work * 60,
+            selectedSubject: 'cardio',
+            selectedPreset: 'standard',
+            timerState: 'idle',
+            timeRemaining: 1500,
             isBreak: false,
             exitTicketText: '',
-            faceDown: false,
-            faceDownWarning: false,
             audioEnvironment: 'silent',
             volume: 0.5,
             showVolume: false,
@@ -882,38 +148,12 @@
         };
 
         function loadStats() {
-            try {
-                return JSON.parse(localStorage.getItem('synapse_stats')) || {
-                    totalHours: 0,
-                    totalSessions: 0,
-                    currentStreak: 0,
-                    longestStreak: 0,
-                    vaultBalance: 0,
-                    perfectExits: 0,
-                    subjectHours: {},
-                    nightOwl: false,
-                    earlyBird: false,
-                    marathonComplete: false
-                };
-            } catch {
-                return {
-                    totalHours: 0,
-                    totalSessions: 0,
-                    currentStreak: 0,
-                    longestStreak: 0,
-                    vaultBalance: 0,
-                    perfectExits: 0,
-                    subjectHours: {}
-                };
-            }
+            try { return JSON.parse(localStorage.getItem('synapse_stats')) || { totalHours: 0, totalSessions: 0, currentStreak: 0, longestStreak: 0, vaultBalance: 0, perfectExits: 0, subjectHours: {} }; }
+            catch { return { totalHours: 0, totalSessions: 0, currentStreak: 0, longestStreak: 0, vaultBalance: 0, subjectHours: {} }; }
         }
 
         function loadSessions() {
-            try {
-                return JSON.parse(localStorage.getItem('synapse_sessions')) || [];
-            } catch {
-                return [];
-            }
+            try { return JSON.parse(localStorage.getItem('synapse_sessions')) || []; } catch { return []; }
         }
 
         function saveData() {
@@ -922,189 +162,49 @@
         }
 
         function showAlert(message, type = 'error') {
-            state.alert = {
-                message,
-                type
-            };
+            state.alert = { message, type };
             render();
-            setTimeout(() => {
-                state.alert = null;
-                render();
-            }, 3000);
+            setTimeout(() => { state.alert = null; render(); }, 3000);
         }
 
-        function getCurrentRank() {
-            const hours = state.stats.totalHours;
-            for (let i = RANKS.length - 1; i >= 0; i--) {
-                if (hours >= RANKS[i].minHours) return { ...RANKS[i],
-                    index: i
-                };
-            }
-            return { ...RANKS[0],
-                index: 0
-            };
-        }
+        function getPreset() { return TIMER_PRESETS.find(p => p.id === state.selectedPreset) || TIMER_PRESETS[0]; }
+        function getSubject() { return SUBJECTS.find(s => s.id === state.selectedSubject) || SUBJECTS[0]; }
+        function formatTime(s) { return `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`; }
 
-        function getNextRank() {
-            const current = getCurrentRank();
-            if (current.index < RANKS.length - 1) return RANKS[current.index + 1];
-            return null;
-        }
-
-        function formatTime(seconds) {
-            const m = Math.floor(seconds / 60);
-            const s = seconds % 60;
-            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        }
-
-        function getPreset() {
-            return TIMER_PRESETS.find(p => p.id === state.selectedPreset) || TIMER_PRESETS[0];
-        }
-
-        function getSubject() {
-            return SUBJECTS.find(s => s.id === state.selectedSubject) || SUBJECTS[0];
-        }
-        // Audio Engine
-        let audioContext = null;
-        let audioNodes = [];
-
-        function startAudio() {
-            if (state.audioEnvironment === 'silent') return;
-            stopAudio();
-
-            try {
-                audioContext = new(window.AudioContext || window.webkitAudioContext)();
-                const gainNode = audioContext.createGain();
-                gainNode.gain.value = state.volume * 0.3;
-                gainNode.connect(audioContext.destination);
-                if (state.audioEnvironment === 'brown') {
-                    // Brown noise
-                    const bufferSize = 2 * audioContext.sampleRate;
-                    const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
-                    const data = buffer.getChannelData(0);
-                    let lastOut = 0;
-                    for (let i = 0; i < bufferSize; i++) {
-                        const white = Math.random() * 2 - 1;
-                        data[i] = (lastOut + (0.02 * white)) / 1.02;
-                        lastOut = data[i];
-                        data[i] *= 3.5;
-                    }
-                    const source = audioContext.createBufferSource();
-                    source.buffer = buffer;
-                    source.loop = true;
-                    source.connect(gainNode);
-                    source.start();
-                    audioNodes.push(source);
-                } else if (state.audioEnvironment === 'rain') {
-                    // Rain-like noise
-                    const bufferSize = 2 * audioContext.sampleRate;
-                    const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
-                    const data = buffer.getChannelData(0);
-                    for (let i = 0; i < bufferSize; i++) {
-                        data[i] = (Math.random() * 2 - 1) * 0.5;
-                        if (Math.random() < 0.001) data[i] *= 3;
-                    }
-                    const source = audioContext.createBufferSource();
-                    source.buffer = buffer;
-                    source.loop = true;
-                    const filter = audioContext.createBiquadFilter();
-                    filter.type = 'lowpass';
-                    filter.frequency.value = 1000;
-                    source.connect(filter);
-                    filter.connect(gainNode);
-                    source.start();
-                    audioNodes.push(source);
-                } else if (state.audioEnvironment === 'library' || state.audioEnvironment === 'coffee') {
-                    // Ambient noise
-                    const bufferSize = 2 * audioContext.sampleRate;
-                    const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
-                    const data = buffer.getChannelData(0);
-                    for (let i = 0; i < bufferSize; i++) {
-                        data[i] = (Math.random() * 2 - 1) * 0.15;
-                    }
-                    const source = audioContext.createBufferSource();
-                    source.buffer = buffer;
-                    source.loop = true;
-                    const filter = audioContext.createBiquadFilter();
-                    filter.type = 'lowpass';
-                    filter.frequency.value = state.audioEnvironment === 'library' ? 400 : 800;
-                    source.connect(filter);
-                    filter.connect(gainNode);
-                    source.start();
-                    audioNodes.push(source);
-                }
-            } catch (e) {
-                console.error('Audio error:', e);
-            }
-        }
-
-        function stopAudio() {
-            audioNodes.forEach(node => {
-                try {
-                    node.stop();
-                } catch {}
-            });
-            audioNodes = [];
-            if (audioContext) {
-                try {
-                    audioContext.close();
-                } catch {}
-                audioContext = null;
-            }
-        }
-
-        function updateVolume() {
-            if (audioContext) {
-                const gainNode = audioContext.createGain();
-                gainNode.gain.value = state.volume * 0.3;
-            }
-        }
-        // Timer
         let timerInterval = null;
+        let audioContext = null;
 
         function startTimer() {
             if (state.timerState === 'running') return;
-
             if (state.timerState === 'idle') {
                 state.timeRemaining = getPreset().work * 60;
                 state.isBreak = false;
             }
-
             state.timerState = 'running';
-            startAudio();
-
+            // Placeholder for audio start
             timerInterval = setInterval(() => {
                 state.timeRemaining--;
-
                 if (state.timeRemaining <= 0) {
                     clearInterval(timerInterval);
-                    stopAudio();
-
                     if (state.isBreak) {
                         state.timerState = 'idle';
                         state.timeRemaining = getPreset().work * 60;
                         state.isBreak = false;
-                        showAlert('Break over! Ready for next session.', 'success');
+                        showAlert('Break over!', 'success');
                     } else {
                         state.timerState = 'exitTicket';
                         state.exitTicketText = '';
                     }
                 }
-
                 render();
             }, 1000);
-
             render();
         }
 
         function pauseTimer() {
-            if (state.strictnessLevel !== 'intern') {
-                showAlert('Cannot pause in this strictness mode!', 'error');
-                return;
-            }
+            if (state.strictnessLevel !== 'intern') return showAlert('Cannot pause!', 'error');
             clearInterval(timerInterval);
             state.timerState = 'paused';
-            stopAudio();
             render();
         }
 
@@ -1113,268 +213,130 @@
             state.timerState = 'idle';
             state.timeRemaining = getPreset().work * 60;
             state.isBreak = false;
-            stopAudio();
             render();
         }
 
         function validateExitTicket() {
             const text = state.exitTicketText.toLowerCase();
             const bullets = text.split('\n').filter(l => l.trim().length > 0);
-
-            if (bullets.length < 3) {
-                showAlert('Please enter at least 3 bullet points!', 'error');
-                return;
-            }
+            if (bullets.length < 3) return showAlert('Need 3+ bullets', 'error');
+            
             const subject = getSubject();
-            const keywordsFound = subject.keywords.filter(kw => text.includes(kw.toLowerCase()));
-            const isValid = keywordsFound.length >= 2 || state.strictnessLevel === 'intern';
-            if (isValid || state.strictnessLevel === 'intern') {
-                // Success!
+            const keywords = subject.keywords.filter(kw => text.includes(kw.toLowerCase()));
+            
+            if (keywords.length >= 2 || state.strictnessLevel === 'intern') {
                 const preset = getPreset();
-                const minutesStudied = preset.work;
-                const hoursStudied = minutesStudied / 60;
-                const earnedMinutes = Math.floor(minutesStudied / 6); // 10 min per hour
-
-                state.stats.totalHours += hoursStudied;
+                const hours = preset.work / 60;
+                state.stats.totalHours += hours;
                 state.stats.totalSessions++;
-                state.stats.vaultBalance += earnedMinutes;
+                state.stats.vaultBalance += Math.floor(preset.work / 6);
                 state.stats.currentStreak++;
-                if (state.stats.currentStreak > state.stats.longestStreak) {
-                    state.stats.longestStreak = state.stats.currentStreak;
-                }
-                if (!state.stats.subjectHours[state.selectedSubject]) {
-                    state.stats.subjectHours[state.selectedSubject] = 0;
-                }
-                state.stats.subjectHours[state.selectedSubject] += hoursStudied;
-
-                if (keywordsFound.length >= 3) {
-                    state.stats.perfectExits = (state.stats.perfectExits || 0) + 1;
-                }
-                const hour = new Date().getHours();
-                if (hour >= 0 && hour < 5) state.stats.nightOwl = true;
-                if (hour >= 4 && hour < 6) state.stats.earlyBird = true;
-                if (preset.work >= 90) state.stats.marathonComplete = true;
-                state.sessions.unshift({
-                    id: Date.now(),
-                    subject: state.selectedSubject,
-                    duration: minutesStudied,
-                    date: new Date().toISOString(),
-                    notes: state.exitTicketText,
-                    passed: true
-                });
+                if(!state.stats.subjectHours[state.selectedSubject]) state.stats.subjectHours[state.selectedSubject] = 0;
+                state.stats.subjectHours[state.selectedSubject] += hours;
+                
+                state.sessions.unshift({ id: Date.now(), subject: state.selectedSubject, duration: preset.work, date: new Date().toISOString() });
                 saveData();
-                showAlert(`Session complete! +${earnedMinutes} vault minutes`, 'success');
-
-                // Start break
+                
                 state.timerState = 'break';
                 state.timeRemaining = preset.break * 60;
                 state.isBreak = true;
                 startTimer();
+                showAlert(`Session Complete! +${Math.floor(preset.work / 6)} vault min`, 'success');
             } else {
-                showAlert('Exit ticket validation failed. Try adding more relevant terms.', 'error');
+                showAlert('Validation failed. Use more keywords.', 'error');
             }
         }
 
-        function skipExitTicket() {
-            if (state.strictnessLevel !== 'intern') {
-                showAlert('Cannot skip in this strictness mode!', 'error');
-                return;
-            }
-            state.timerState = 'idle';
-            state.timeRemaining = getPreset().work * 60;
-            render();
-        }
-
-        function unlockApp(app) {
-            if (state.stats.vaultBalance >= app.cost) {
-                state.stats.vaultBalance -= app.cost;
-                saveData();
-                showAlert(`Unlocked ${app.name} for ${app.cost} minutes!`, 'success');
-            } else {
-                showAlert('Not enough vault balance!', 'error');
-            }
-        }
-        // Render
         function render() {
             const root = document.getElementById('root');
-            root.innerHTML = `
-          <div class="app">
-            ${state.alert ? `<div class="alert ${state.alert.type}">${state.alert.message}</div>` : ''}
-            ${renderScreen()}
-            ${renderNav()}
-          </div>
-        `;
+            root.innerHTML = `<div class="app">${state.alert ? `<div class="alert ${state.alert.type}">${state.alert.message}</div>` : ''}${renderScreen()}${renderNav()}</div>`;
             attachEvents();
         }
 
+        function renderNav() {
+            const items = [
+                { id: 'home', icon: '🏠', label: 'Home' },
+                { id: 'timer', icon: '⏱️', label: 'Timer' },
+                { id: 'dashboard', icon: '📊', label: 'Chart' },
+                { id: 'profile', icon: '👤', label: 'Profile' },
+                { id: 'vault', icon: '🎁', label: 'Vault' }
+            ];
+            return `<nav class="nav">${items.map(i => `<button class="nav-btn ${state.screen === i.id ? 'active' : ''}" data-screen="${i.id}"><span style="font-size:20px;">${i.icon}</span><span>${i.label}</span></button>`).join('')}</nav>`;
+        }
+
         function renderScreen() {
-            switch (state.screen) {
-                case 'home':
-                    return renderHome();
-                case 'timer':
-                    return renderTimer();
-                case 'dashboard':
-                    return renderDashboard();
-                case 'profile':
-                    return renderProfile();
-                case 'vault':
-                    return renderVault();
-                case 'settings':
-                    return renderSettings();
-                default:
-                    return renderHome();
-            }
+            if (state.screen === 'home') return renderHome();
+            if (state.screen === 'timer') return renderTimer();
+            if (state.screen === 'dashboard') return renderDashboard();
+            if (state.screen === 'profile') return renderProfile();
+            if (state.screen === 'vault') return renderVault();
+            return renderHome();
         }
 
         function renderHome() {
-            const rank = getCurrentRank();
-            return `
-          <div class="screen">
-            <div class="header">
-              <div class="logo">🧠</div>
-              <h1 class="title">SYNAPSE</h1>
-              <p class="subtitle">Proof-of-Work Focus Tool</p>
-            </div>
-            
-            <div class="card">
-              <div class="card-title">Today's Subject</div>
-              <select class="select" id="subjectSelect">
-                ${SUBJECTS.map(s => `<option value="${s.id}" ${s.id === state.selectedSubject ? 'selected' : ''}>${s.icon} ${s.name}</option>`).join('')}
-              </select>
-            </div>
-            
-            <div class="card">
-              <div class="card-title">Timer Preset</div>
-              <select class="select" id="presetSelect">
-                ${TIMER_PRESETS.map(p => `<option value="${p.id}" ${p.id === state.selectedPreset ? 'selected' : ''}>${p.name} (${p.work}/${p.break})</option>`).join('')}
-              </select>
-            </div>
-            
-            <div class="card">
-              <div class="stats-grid">
-                <div class="stat-card">
-                  <div class="stat-value">${state.stats.totalHours.toFixed(1)}</div>
-                  <div class="stat-label">Total Hours</div>
-                </div>
-                <div class="stat-card">
-                  <div class="stat-value">${state.stats.currentStreak}</div>
-                  <div class="stat-label">Day Streak</div>
-                </div>
-                <div class="stat-card">
-                  <div class="stat-value">${rank.icon}</div>
-                  <div class="stat-label">${rank.name}</div>
-                </div>
-                <div class="stat-card">
-                  <div class="stat-value">${state.stats.vaultBalance}</div>
-                  <div class="stat-label">Vault Minutes</div>
-                </div>
-              </div>
-            </div>
-            
-            <button class="btn btn-primary" id="beginBtn">
-              ⚡ Begin Your Shift
-            </button>
-          </div>
-        `;
+            return `<div class="screen"><div class="header"><div class="logo">🧠</div><h1 class="title">SYNAPSE</h1><p class="subtitle">Proof-of-Work Focus Tool</p></div>
+            <div class="card"><div class="card-title">Subject</div><select class="select" id="subjectSelect">${SUBJECTS.map(s => `<option value="${s.id}" ${s.id === state.selectedSubject ? 'selected' : ''}>${s.icon} ${s.name}</option>`).join('')}</select></div>
+            <div class="card"><div class="card-title">Preset</div><select class="select" id="presetSelect">${TIMER_PRESETS.map(p => `<option value="${p.id}" ${p.id === state.selectedPreset ? 'selected' : ''}>${p.name} (${p.work}m)</option>`).join('')}</select></div>
+            <button class="btn btn-primary" id="beginBtn">⚡ Begin Shift</button></div>`;
         }
 
         function renderTimer() {
-            const preset = getPreset();
-            const subject = getSubject();
-            const totalSeconds = state.isBreak ? preset.break * 60 : preset.work * 60;
-            const progress = ((totalSeconds - state.timeRemaining) / totalSeconds) * 100;
-
-            if (state.timerState === 'exitTicket') {
-                return renderExitTicket();
-            }
-
-            return `
-          <div class="screen">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-              <button class="timer-btn" id="backBtn">←</button>
-              <div style="text-align:center;">
-                <div style="font-size:14px;color:#94a3b8;">${subject.icon} ${subject.name}</div>
-                <div style="font-size:12px;color:#64748b;">${state.isBreak ? 'Break Time' : 'Focus Mode'}</div>
-              </div>
-              <button class="timer-btn" id="volumeBtn">🔊</button>
-            </div>
-            
-            ${state.showVolume ? `
-              <div class="volume-control">
-                <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="${state.volume * 100}" />
-                <div style="font-size:10px;color:#94a3b8;">${Math.round(state.volume * 100)}%</div>
-              </div>
-            ` : ''}
-            
-            <div class="timer-display">
-              <svg class="progress-ring" viewBox="0 0 280 280">
-                <circle cx="140" cy="140" r="120" fill="none" stroke="rgba(6,182,212,0.1)" stroke-width="8"/>
-                <circle cx="140" cy="140" r="120" fill="none" stroke="url(#gradient)" stroke-width="8" 
-                  stroke-dasharray="${2 * Math.PI * 120}" 
-                  stroke-dashoffset="${2 * Math.PI * 120 * (1 - progress / 100)}"
-                  stroke-linecap="round" transform="rotate(-90 140 140)"/>
-                <defs>
-                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stop-color="#0891b2"/>
-                    <stop offset="100%" stop-color="#22d3ee"/>
-                  </linearGradient>
-                </defs>
-              </svg>
-              <div style="margin-top:-200px;position:relative;">
-                <div class="timer-time ${state.timerState === 'running' ? 'pulsing' : ''}">${formatTime(state.timeRemaining)}</div>
-                <div class="timer-label">${state.isBreak ? 'Break remaining' : 'Focus remaining'}</div>
-              </div>
-            </div>
-            
-            <div class="timer-controls" style="margin-top:80px;">
-              <button class="timer-btn" id="resetBtn">↺</button>
-              ${state.timerState === 'running' 
-                ? `<button class="timer-btn primary" id="pauseBtn">⏸</button>`
-                : `<button class="timer-btn primary" id="playBtn">▶</button>`
-              }
-              <button class="timer-btn" id="skipBtn">⏭</button>
-            </div>
-          </div>
-        `;
+            if (state.timerState === 'exitTicket') return renderExitTicket();
+            const total = state.isBreak ? getPreset().break * 60 : getPreset().work * 60;
+            const progress = ((total - state.timeRemaining) / total) * 100;
+            return `<div class="screen"><div class="timer-display"><div class="timer-time ${state.timerState==='running'?'pulsing':''}">${formatTime(state.timeRemaining)}</div><div class="timer-label">${state.isBreak?'Break':'Focus'}</div></div>
+            <div class="timer-controls"><button class="timer-btn" id="resetBtn">↺</button>${state.timerState === 'running' ? `<button class="timer-btn primary" id="pauseBtn">⏸</button>` : `<button class="timer-btn primary" id="playBtn">▶</button>`}</div></div>`;
         }
 
         function renderExitTicket() {
-            const subject = getSubject();
-            const bullets = state.exitTicketText.split('\n').filter(l => l.trim()).length;
-
-            return `
-          <div class="exit-ticket">
-            <h2>🎓 Exit Ticket</h2>
-            <p>Summarize what you learned about ${subject.name}</p>
-            
-            <div class="card">
-              <div class="card-title">Your Notes (3-5 bullet points)</div>
-              <textarea id="exitTextarea" placeholder="• First key concept...
-• Second important point...
-• Third thing I learned...">${state.exitTicketText}</textarea>
-              <div class="bullet-count">${bullets}/3 minimum bullets</div>
-            </div>
-            
-            <div style="display:flex;gap:12px;">
-              <button class="btn" style="flex:1;background:rgba(100,116,139,0.3);color:#94a3b8;" id="skipExitBtn">
-                Skip
-              </button>
-              <button class="btn btn-primary" style="flex:2;" id="submitExitBtn">
-                ✓ Submit & Complete
-              </button>
-            </div>
-          </div>
-        `;
+            return `<div class="exit-ticket"><h2>🎓 Exit Ticket</h2><p>3 bullet points about ${getSubject().name}</p>
+            <div class="card"><textarea id="exitTextarea" placeholder="• Learned...">${state.exitTicketText}</textarea></div>
+            <button class="btn btn-primary" id="submitExitBtn">Submit</button></div>`;
         }
 
         function renderDashboard() {
-            const heatmapData = generateHeatmap();
+            const data = state.sessions.slice(0, 5);
+            return `<div class="screen"><h2 style="margin-bottom:20px;">📊 Clinical Chart</h2>
+            <div class="card"><div class="card-title">Recent</div>${data.length ? data.map(s => `<div style="padding:8px;border-bottom:1px solid #334;">${s.subject} - ${s.duration}m</div>`).join('') : '<p style="text-align:center;color:#666">No sessions</p>'}</div>
+            <div class="card"><div class="card-title">Heatmap</div><div class="heatmap">${Array(60).fill('').map(() => `<div class="heatmap-cell ${Math.random() > 0.7 ? 'l4' : 'l1'}"></div>`).join('')}</div></div></div>`;
+        }
 
-            return `
-          <div class="screen">
-            <h2 style="font-size:24px;margin-bottom:20px;">📊 Clinical Chart</h2>
+        function renderProfile() {
+             return `<div class="screen"><div class="profile-header"><div class="avatar">👤</div><div class="rank">Student</div><div class="rank-subtitle">${state.stats.totalHours.toFixed(1)} hrs</div></div>
+             <div class="card"><div class="card-title">Stats</div><div class="stats-grid"><div class="stat-card"><div class="stat-value">${state.stats.totalSessions}</div><div class="stat-label">Sessions</div></div><div class="stat-card"><div class="stat-value">${state.stats.currentStreak}</div><div class="stat-label">Streak</div></div></div></div></div>`;
+        }
+
+        function renderVault() {
+            return `<div class="screen"><div class="vault-balance"><div class="vault-amount">${state.stats.vaultBalance}</div><div class="vault-label">Minutes</div></div>
+            <div class="card"><div class="app-grid">${VAULT_APPS.map(a => `<div class="app-item ${state.stats.vaultBalance < a.cost ? 'locked' : ''}" onclick="unlockApp('${a.name}', ${a.cost})"><div class="app-icon">${a.icon}</div><div class="app-name">${a.name}</div><div class="app-cost">${a.cost}m</div></div>`).join('')}</div></div></div>`;
+        }
+
+        function unlockApp(name, cost) {
+            if(state.stats.vaultBalance >= cost) {
+                state.stats.vaultBalance -= cost;
+                saveData();
+                showAlert(`Unlocked ${name}`, 'success');
+            } else showAlert('Not enough minutes', 'error');
+        }
+
+        function attachEvents() {
+            document.querySelectorAll('.nav-btn').forEach(b => b.onclick = () => { state.screen = b.dataset.screen; render(); });
+            const beginBtn = document.getElementById('beginBtn');
+            if(beginBtn) beginBtn.onclick = () => { state.screen = 'timer'; state.timeRemaining = getPreset().work*60; render(); };
             
-            <div class="card">
-              <div class="card-title">Study Heatmap (12 weeks)</div>
-              <div class="heatmap">
-                ${heatmapData.map(level => `<div
+            const playBtn = document.getElementById('playBtn'); if(playBtn) playBtn.onclick = startTimer;
+            const pauseBtn = document.getElementById('pauseBtn'); if(pauseBtn) pauseBtn.onclick = pauseTimer;
+            const resetBtn = document.getElementById('resetBtn'); if(resetBtn) resetBtn.onclick = resetTimer;
+            
+            const submitBtn = document.getElementById('submitExitBtn'); if(submitBtn) submitBtn.onclick = validateExitTicket;
+            const exitText = document.getElementById('exitTextarea'); if(exitText) exitText.oninput = (e) => state.exitTicketText = e.target.value;
+            
+            const subSel = document.getElementById('subjectSelect'); if(subSel) subSel.onchange = (e) => state.selectedSubject = e.target.value;
+            const preSel = document.getElementById('presetSelect'); if(preSel) preSel.onchange = (e) => { state.selectedPreset = e.target.value; };
+        }
+
+        // Initialize
+        render();
+    </script>
+</body>
+</html>
