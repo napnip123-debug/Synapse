@@ -1,12 +1,98 @@
 {
-  "name": "Synapse: Proof-of-Work Focus Tool",
+  "name": "Synapse - Proof-of-Work Focus Tool",
   "short_name": "Synapse",
-  "description": "The anti-cheat focus app for medical students",
-  "start_url": "./index.html",
-  "scope": "./",
+  "description": "Medical student focus app with active recall verification and RPG progression",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0891b2",
+  "background_color": "#0a0e1a",
+  "theme_color": "#10b981",
   "orientation": "portrait",
-  "icons": [{"src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='64' fill='%230f172a'/><circle cx='256' cy='200' r='80' fill='none' stroke='%2306b6d4' stroke-width='16'/></svg>","sizes": "512x512","type": "image/svg+xml","purpose": "any maskable"}]
+  "icons": [
+    {
+      "src": "icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "productivity", "medical"],
+  "screenshots": [
+    {
+      "src": "screenshots/dashboard.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Dashboard with stats and quick actions"
+    },
+    {
+      "src": "screenshots/timer.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Focus timer with face-down detection"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Quick Anki Session",
+      "short_name": "Anki",
+      "description": "Start a 10/2 Anki grind session",
+      "url": "/?mode=anki",
+      "icons": [{ "src": "icons/anki-icon.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Deep Work",
+      "short_name": "Focus",
+      "description": "Start a 50/10 deep work session",
+      "url": "/?mode=deepwork",
+      "icons": [{ "src": "icons/focus-icon.png", "sizes": "96x96" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "scope": "/",
+  "lang": "en-US",
+  "dir": "ltr"
 }
