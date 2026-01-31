@@ -3,120 +3,250 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#0891b2" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="./manifest.json" />
     <title>Synapse - Medical Study Focus App</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0 }
-        html { font-family: system-ui, -apple-system, sans-serif; background: #0f172a; color: #fff; height: 100% }
-        body { height: 100%; overflow-x: hidden }
-        #root { height: 100% }
-        .app { min-height: 100vh; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%) }
-        .nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border-top: 1px solid rgba(6, 182, 212, 0.2); display: flex; justify-content: space-around; padding: 8px 0; z-index: 50 }
-        .nav-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 16px; background: none; border: none; color: #94a3b8; font-size: 10px; cursor: pointer; transition: all 0.2s }
-        .nav-btn.active, .nav-btn:hover { color: #06b6d4 }
-        .screen { padding: 20px; padding-bottom: 100px; max-width: 500px; margin: 0 auto }
-        .header { text-align: center; padding: 40px 20px }
-        .logo { font-size: 48px; margin-bottom: 16px }
-        .title { font-size: 28px; font-weight: 700; background: linear-gradient(135deg, #06b6d4, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text }
-        .subtitle { color: #94a3b8; margin-top: 8px; font-size: 14px }
-        .card { background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 16px; padding: 20px; margin-bottom: 16px }
-        .card-title { font-size: 12px; color: #06b6d4; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px }
-        .select { width: 100%; padding: 12px 16px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 12px; color: #fff; font-size: 16px; cursor: pointer }
-        .select option { background: #1e293b; color: #fff }
-        .btn { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s }
-        .btn-primary { background: linear-gradient(135deg, #0891b2, #06b6d4); color: #fff }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(6, 182, 212, 0.3) }
-        .timer-display { text-align: center; padding: 60px 20px }
-        .timer-time { font-size: 80px; font-weight: 200; font-family: 'SF Mono', monospace; background: linear-gradient(135deg, #06b6d4, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent }
-        .timer-label { color: #94a3b8; font-size: 14px; margin-top: 8px }
-        .timer-controls { display: flex; gap: 12px; justify-content: center; margin-top: 32px }
-        .timer-btn { width: 64px; height: 64px; border-radius: 50%; border: 2px solid rgba(6, 182, 212, 0.3); background: rgba(6, 182, 212, 0.1); color: #06b6d4; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s }
-        .timer-btn:hover { background: rgba(6, 182, 212, 0.2); transform: scale(1.05) }
-        .timer-btn.primary { background: linear-gradient(135deg, #0891b2, #06b6d4); border: none; color: #fff; width: 80px; height: 80px }
-        .progress-ring { width: 280px; height: 280px; margin: 0 auto }
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px }
-        .stat-card { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(6, 182, 212, 0.1); border-radius: 12px; padding: 16px; text-align: center }
-        .stat-value { font-size: 24px; font-weight: 700; color: #06b6d4 }
-        .stat-label { font-size: 11px; color: #64748b; margin-top: 4px; text-transform: uppercase }
-        .exit-ticket { padding: 20px }
-        .exit-ticket h2 { font-size: 24px; text-align: center; margin-bottom: 8px }
-        .exit-ticket p { color: #94a3b8; text-align: center; margin-bottom: 24px }
-        .exit-ticket textarea { width: 100%; min-height: 200px; padding: 16px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 12px; color: #fff; font-size: 16px; resize: vertical; font-family: inherit }
-        .profile-header { text-align: center; padding: 40px 20px }
-        .avatar { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #0891b2, #06b6d4); display: flex; align-items: center; justify-content: center; font-size: 48px; margin: 0 auto 16px }
-        .rank { font-size: 24px; font-weight: 700 }
-        .rank-subtitle { color: #94a3b8; font-size: 14px }
-        .progress-bar { height: 8px; background: rgba(6, 182, 212, 0.2); border-radius: 4px; overflow: hidden; margin: 16px 0 }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, #0891b2, #06b6d4); border-radius: 4px; transition: width 0.3s }
-        .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px }
-        .badge { padding: 8px 12px; background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 20px; font-size: 12px; color: #06b6d4 }
-        .badge.locked { opacity: 0.4; color: #64748b; border-color: rgba(100, 116, 139, 0.3) }
-        .heatmap { display: grid; grid-template-columns: repeat(12, 1fr); gap: 3px }
-        .heatmap-cell { aspect-ratio: 1; border-radius: 2px; background: rgba(6, 182, 212, 0.1) }
-        .heatmap-cell.l1 { background: rgba(6, 182, 212, 0.3) }
-        .heatmap-cell.l2 { background: rgba(6, 182, 212, 0.5) }
-        .heatmap-cell.l3 { background: rgba(6, 182, 212, 0.7) }
-        .heatmap-cell.l4 { background: #06b6d4 }
-        .vault-balance { text-align: center; padding: 32px; background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(34, 211, 238, 0.05)); border-radius: 16px; margin-bottom: 24px }
-        .vault-amount { font-size: 48px; font-weight: 700; color: #06b6d4 }
-        .vault-label { color: #94a3b8; font-size: 14px }
-        .app-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px }
-        .app-item { text-align: center; padding: 16px; background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(6, 182, 212, 0.1); border-radius: 12px; cursor: pointer; transition: all 0.2s }
-        .app-item:hover { border-color: rgba(6, 182, 212, 0.3); transform: translateY(-2px) }
-        .app-item.locked { opacity: 0.5 }
-        .app-icon { font-size: 32px; margin-bottom: 8px }
-        .app-name { font-size: 12px; color: #94a3b8 }
-        .app-cost { font-size: 10px; color: #06b6d4; margin-top: 4px }
-        .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid rgba(100, 116, 139, 0.1) }
-        .volume-control { position: absolute; top: 60px; right: 20px; background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: 20 }
-        .volume-slider { width: 100px; height: 4px; -webkit-appearance: none; background: rgba(6, 182, 212, 0.2); border-radius: 2px; outline: none }
-        .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: #06b6d4; border-radius: 50%; cursor: pointer }
-        .alert { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #ef4444; color: #fff; padding: 12px 24px; border-radius: 12px; font-size: 14px; z-index: 100; animation: slideIn 0.3s }
-        .alert.success { background: #10b981 }
-        .alert.warning { background: #f59e0b }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-50%) translateY(-20px) } to { opacity: 1; transform: translateX(-50%) translateY(0) } }
-        @keyframes pulse { 0%, 100% { opacity: 1 } 50% { opacity: 0.5 } }
-        .pulsing { animation: pulse 2s infinite }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #fff; height: 100%; }
+        body { height: 100%; overflow-x: hidden; }
+        #root { height: 100%; }
+        .app { min-height: 100vh; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); }
+        
+        /* Navigation */
+        .nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border-top: 1px solid rgba(6, 182, 212, 0.2); display: flex; justify-content: space-around; padding: 8px 0; z-index: 50; }
+        .nav-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 12px; background: none; border: none; color: #64748b; font-size: 10px; cursor: pointer; transition: all 0.2s; }
+        .nav-btn.active, .nav-btn:hover { color: #06b6d4; }
+        .nav-btn.active .nav-icon { transform: scale(1.1); }
+        .nav-icon { font-size: 20px; transition: transform 0.2s; }
+        
+        /* Screen */
+        .screen { padding: 20px; padding-bottom: 100px; max-width: 500px; margin: 0 auto; }
+        
+        /* Header */
+        .header { text-align: center; padding: 40px 20px; }
+        .logo { font-size: 64px; margin-bottom: 16px; filter: drop-shadow(0 0 20px rgba(6, 182, 212, 0.5)); }
+        .title { font-size: 32px; font-weight: 800; letter-spacing: 4px; background: linear-gradient(135deg, #06b6d4, #22d3ee, #67e8f9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .subtitle { color: #94a3b8; margin-top: 8px; font-size: 14px; font-weight: 500; }
+        
+        /* Cards */
+        .card { background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 16px; padding: 20px; margin-bottom: 16px; backdrop-filter: blur(10px); }
+        .card-title { font-size: 11px; color: #06b6d4; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; font-weight: 600; }
+        
+        /* Form Elements */
+        .select { width: 100%; padding: 14px 16px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 12px; color: #fff; font-size: 16px; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%2306b6d4' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 24px; }
+        .select:focus { outline: none; border-color: #06b6d4; box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2); }
+        .select option { background: #1e293b; color: #fff; padding: 12px; }
+        
+        /* Buttons */
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: linear-gradient(135deg, #0891b2, #06b6d4); color: #fff; box-shadow: 0 4px 20px rgba(6, 182, 212, 0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(6, 182, 212, 0.4); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-secondary { background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); color: #06b6d4; }
+        .btn-danger { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; }
+        
+        /* Timer */
+        .timer-container { position: relative; padding: 40px 20px; }
+        .timer-ring-container { position: relative; width: 280px; height: 280px; margin: 0 auto; }
+        .timer-ring { width: 100%; height: 100%; transform: rotate(-90deg); }
+        .timer-ring-bg { fill: none; stroke: rgba(6, 182, 212, 0.1); stroke-width: 8; }
+        .timer-ring-progress { fill: none; stroke: url(#gradient); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
+        .timer-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+        .timer-time { font-size: 64px; font-weight: 200; font-family: 'SF Mono', 'Fira Code', monospace; background: linear-gradient(135deg, #06b6d4, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -2px; }
+        .timer-label { color: #94a3b8; font-size: 14px; margin-top: 4px; text-transform: uppercase; letter-spacing: 2px; }
+        .timer-subject { color: #64748b; font-size: 12px; margin-top: 8px; }
+        .timer-controls { display: flex; gap: 16px; justify-content: center; margin-top: 40px; }
+        .timer-btn { width: 56px; height: 56px; border-radius: 50%; border: 2px solid rgba(6, 182, 212, 0.3); background: rgba(6, 182, 212, 0.1); color: #06b6d4; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .timer-btn:hover { background: rgba(6, 182, 212, 0.2); transform: scale(1.05); }
+        .timer-btn.primary { background: linear-gradient(135deg, #0891b2, #06b6d4); border: none; color: #fff; width: 72px; height: 72px; font-size: 24px; box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4); }
+        .timer-btn.primary:hover { box-shadow: 0 8px 30px rgba(6, 182, 212, 0.5); }
+        .timer-btn.danger { border-color: rgba(239, 68, 68, 0.3); color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+        
+        /* Volume Control */
+        .audio-controls { position: absolute; top: 20px; right: 20px; }
+        .audio-btn { width: 44px; height: 44px; border-radius: 12px; border: 1px solid rgba(6, 182, 212, 0.2); background: rgba(30, 41, 59, 0.8); color: #06b6d4; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .volume-popup { position: absolute; top: 52px; right: 0; background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 12px; padding: 16px; min-width: 160px; backdrop-filter: blur(10px); }
+        .volume-slider { width: 100%; height: 6px; -webkit-appearance: none; background: rgba(6, 182, 212, 0.2); border-radius: 3px; outline: none; margin: 12px 0; }
+        .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: #06b6d4; border-radius: 50%; cursor: pointer; box-shadow: 0 2px 8px rgba(6, 182, 212, 0.4); }
+        .volume-label { font-size: 12px; color: #94a3b8; text-align: center; }
+        
+        /* Face Down Warning */
+        .face-down-warning { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(239, 68, 68, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+        .face-down-warning h2 { font-size: 24px; margin-bottom: 16px; }
+        .face-down-warning p { color: rgba(255,255,255,0.8); }
+        
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .stat-card { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(6, 182, 212, 0.1); border-radius: 12px; padding: 16px; text-align: center; }
+        .stat-value { font-size: 28px; font-weight: 700; background: linear-gradient(135deg, #06b6d4, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-label { font-size: 10px; color: #64748b; margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* Exit Ticket */
+        .exit-ticket { padding: 20px; padding-bottom: 100px; }
+        .exit-ticket-header { text-align: center; margin-bottom: 24px; }
+        .exit-ticket-header h2 { font-size: 28px; margin-bottom: 8px; }
+        .exit-ticket-header p { color: #94a3b8; }
+        .exit-textarea { width: 100%; min-height: 200px; padding: 16px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 12px; color: #fff; font-size: 16px; resize: vertical; font-family: inherit; line-height: 1.6; }
+        .exit-textarea:focus { outline: none; border-color: #06b6d4; }
+        .exit-textarea::placeholder { color: #64748b; }
+        .keyword-hint { margin-top: 12px; padding: 12px; background: rgba(6, 182, 212, 0.1); border-radius: 8px; font-size: 12px; color: #94a3b8; }
+        .keyword-hint strong { color: #06b6d4; }
+        
+        /* Profile */
+        .profile-header { text-align: center; padding: 40px 20px; }
+        .avatar { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #0891b2, #06b6d4); display: flex; align-items: center; justify-content: center; font-size: 48px; margin: 0 auto 16px; box-shadow: 0 8px 32px rgba(6, 182, 212, 0.3); }
+        .rank-name { font-size: 28px; font-weight: 700; }
+        .rank-subtitle { color: #94a3b8; font-size: 14px; margin-top: 4px; }
+        .progress-bar { height: 8px; background: rgba(6, 182, 212, 0.2); border-radius: 4px; overflow: hidden; margin: 16px 0; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #0891b2, #06b6d4); border-radius: 4px; transition: width 0.5s ease; }
+        .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: #64748b; }
+        
+        /* Badges */
+        .badges-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+        .badge { padding: 8px 14px; background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 20px; font-size: 12px; color: #06b6d4; display: flex; align-items: center; gap: 6px; }
+        .badge.locked { opacity: 0.4; color: #64748b; border-color: rgba(100, 116, 139, 0.3); background: rgba(100, 116, 139, 0.1); }
+        
+        /* Heatmap */
+        .heatmap { display: grid; grid-template-columns: repeat(12, 1fr); gap: 3px; }
+        .heatmap-cell { aspect-ratio: 1; border-radius: 3px; background: rgba(6, 182, 212, 0.1); transition: all 0.2s; }
+        .heatmap-cell.l1 { background: rgba(6, 182, 212, 0.25); }
+        .heatmap-cell.l2 { background: rgba(6, 182, 212, 0.45); }
+        .heatmap-cell.l3 { background: rgba(6, 182, 212, 0.65); }
+        .heatmap-cell.l4 { background: #06b6d4; }
+        
+        /* Vault */
+        .vault-header { text-align: center; padding: 32px; background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(34, 211, 238, 0.05)); border-radius: 20px; margin-bottom: 24px; border: 1px solid rgba(6, 182, 212, 0.2); }
+        .vault-amount { font-size: 56px; font-weight: 700; background: linear-gradient(135deg, #06b6d4, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .vault-label { color: #94a3b8; font-size: 14px; margin-top: 4px; }
+        .vault-info { font-size: 12px; color: #64748b; margin-top: 12px; }
+        .app-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .app-item { text-align: center; padding: 20px 12px; background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(6, 182, 212, 0.1); border-radius: 16px; cursor: pointer; transition: all 0.2s; }
+        .app-item:hover { border-color: rgba(6, 182, 212, 0.4); transform: translateY(-2px); background: rgba(30, 41, 59, 0.8); }
+        .app-item.locked { opacity: 0.5; cursor: not-allowed; }
+        .app-item.locked:hover { transform: none; }
+        .app-icon { font-size: 36px; margin-bottom: 8px; }
+        .app-name { font-size: 12px; color: #e2e8f0; font-weight: 500; }
+        .app-cost { font-size: 11px; color: #06b6d4; margin-top: 4px; }
+        
+        /* Settings */
+        .settings-section { margin-bottom: 24px; }
+        .settings-section-title { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; padding-left: 4px; }
+        .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: rgba(30, 41, 59, 0.6); border-radius: 12px; margin-bottom: 8px; }
+        .settings-item-label { font-size: 15px; color: #e2e8f0; }
+        .settings-item-value { font-size: 14px; color: #06b6d4; }
+        
+        /* Recent Sessions */
+        .session-item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid rgba(100, 116, 139, 0.1); gap: 12px; }
+        .session-item:last-child { border-bottom: none; }
+        .session-icon { font-size: 24px; }
+        .session-info { flex: 1; }
+        .session-subject { font-size: 14px; font-weight: 500; }
+        .session-meta { font-size: 12px; color: #64748b; margin-top: 2px; }
+        .session-duration { font-size: 14px; color: #06b6d4; font-weight: 600; }
+        
+        /* Alerts */
+        .alert { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 14px 24px; border-radius: 12px; font-size: 14px; font-weight: 500; z-index: 100; animation: slideIn 0.3s ease; display: flex; align-items: center; gap: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+        .alert.error { background: linear-gradient(135deg, #dc2626, #ef4444); color: #fff; }
+        .alert.success { background: linear-gradient(135deg, #059669, #10b981); color: #fff; }
+        .alert.warning { background: linear-gradient(135deg, #d97706, #f59e0b); color: #fff; }
+        
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-50%) translateY(-20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(6, 182, 212, 0.3); } 50% { box-shadow: 0 0 40px rgba(6, 182, 212, 0.5); } }
+        .pulsing { animation: pulse 2s ease-in-out infinite; }
+        .glowing { animation: glow 2s ease-in-out infinite; }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(6, 182, 212, 0.3); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(6, 182, 212, 0.5); }
     </style>
 </head>
 <body>
     <div id="root"></div>
     <script>
+        // ============ DATA ============
         const SUBJECTS = [
-            { id: 'cardio', name: 'Cardiology', icon: '❤️', keywords: ['heart', 'cardiac', 'coronary', 'myocardial', 'arrhythmia', 'murmur', 'valve'] },
-            { id: 'neuro', name: 'Neurology', icon: '🧠', keywords: ['brain', 'neuron', 'synapse', 'cortex', 'cerebral', 'spinal', 'nerve'] },
-            { id: 'renal', name: 'Renal', icon: '🫘', keywords: ['kidney', 'nephron', 'glomerular', 'filtration', 'tubule', 'urine'] },
-            { id: 'gi', name: 'GI', icon: '🫁', keywords: ['stomach', 'intestine', 'liver', 'pancreas', 'digestion', 'enzyme'] },
-            { id: 'pulm', name: 'Pulmonology', icon: '🫁', keywords: ['lung', 'respiratory', 'bronchi', 'alveoli', 'oxygen'] },
-            { id: 'pharm', name: 'Pharmacology', icon: '💊', keywords: ['drug', 'receptor', 'agonist', 'antagonist', 'dose'] },
-            { id: 'micro', name: 'Microbiology', icon: '🦠', keywords: ['bacteria', 'virus', 'infection', 'antibiotic'] },
-            { id: 'biochem', name: 'Biochem', icon: '🧬', keywords: ['enzyme', 'protein', 'metabolism', 'atp'] },
-            { id: 'immuno', name: 'Immunology', icon: '🛡️', keywords: ['antibody', 'antigen', 'lymphocyte', 'cytokine'] },
-            { id: 'anatomy', name: 'Anatomy', icon: '🦴', keywords: ['bone', 'muscle', 'organ', 'tissue'] },
-            { id: 'path', name: 'Pathology', icon: '🔬', keywords: ['disease', 'lesion', 'neoplasm', 'inflammation'] },
-            { id: 'anki', name: 'Anki', icon: '📚', keywords: ['review', 'card', 'recall'] }
+            { id: 'cardio', name: 'Cardiology', icon: '❤️', keywords: ['heart', 'cardiac', 'coronary', 'myocardial', 'arrhythmia', 'murmur', 'valve', 'atrial', 'ventricular', 'ecg', 'ekg'] },
+            { id: 'neuro', name: 'Neurology', icon: '🧠', keywords: ['brain', 'neuron', 'synapse', 'cortex', 'cerebral', 'spinal', 'nerve', 'axon', 'dendrite', 'glia'] },
+            { id: 'renal', name: 'Renal', icon: '🫘', keywords: ['kidney', 'nephron', 'glomerular', 'filtration', 'tubule', 'urine', 'creatinine', 'bun'] },
+            { id: 'gi', name: 'GI / Hepatology', icon: '🫁', keywords: ['stomach', 'intestine', 'liver', 'pancreas', 'digestion', 'enzyme', 'bile', 'colon'] },
+            { id: 'pulm', name: 'Pulmonology', icon: '🌬️', keywords: ['lung', 'respiratory', 'bronchi', 'alveoli', 'oxygen', 'ventilation', 'copd', 'asthma'] },
+            { id: 'pharm', name: 'Pharmacology', icon: '💊', keywords: ['drug', 'receptor', 'agonist', 'antagonist', 'dose', 'pharmacokinetics', 'metabolism'] },
+            { id: 'micro', name: 'Microbiology', icon: '🦠', keywords: ['bacteria', 'virus', 'infection', 'antibiotic', 'gram', 'culture', 'pathogen'] },
+            { id: 'biochem', name: 'Biochemistry', icon: '🧬', keywords: ['enzyme', 'protein', 'metabolism', 'atp', 'glycolysis', 'krebs', 'amino'] },
+            { id: 'immuno', name: 'Immunology', icon: '🛡️', keywords: ['antibody', 'antigen', 'lymphocyte', 'cytokine', 'tcell', 'bcell', 'complement'] },
+            { id: 'anatomy', name: 'Anatomy', icon: '🦴', keywords: ['bone', 'muscle', 'organ', 'tissue', 'nerve', 'artery', 'vein'] },
+            { id: 'path', name: 'Pathology', icon: '🔬', keywords: ['disease', 'lesion', 'neoplasm', 'inflammation', 'necrosis', 'apoptosis'] },
+            { id: 'anki', name: 'Anki Review', icon: '📚', keywords: ['review', 'card', 'recall', 'spaced', 'repetition', 'memorize'] }
         ];
 
         const TIMER_PRESETS = [
-            { id: 'standard', name: 'Standard', work: 25, break: 5 },
-            { id: 'block', name: 'Block Exam', work: 60, break: 10 },
-            { id: 'anki', name: 'Anki', work: 10, break: 2 },
-            { id: 'deep', name: 'Deep Work', work: 50, break: 10 },
-            { id: 'marathon', name: 'Marathon', work: 90, break: 20 }
+            { id: 'standard', name: 'Standard', work: 25, break: 5, description: 'Classic Pomodoro' },
+            { id: 'block', name: 'Block Exam', work: 60, break: 10, description: 'Extended focus' },
+            { id: 'anki', name: 'Anki Grind', work: 10, break: 2, description: 'Rapid fire' },
+            { id: 'deep', name: 'Deep Work', work: 50, break: 10, description: 'Cal Newport style' },
+            { id: 'marathon', name: 'Marathon', work: 90, break: 20, description: 'Ultra focus' }
+        ];
+
+        const RANKS = [
+            { name: 'Pre-med', minHours: 0, icon: '📖' },
+            { name: 'M1', minHours: 10, icon: '🩺' },
+            { name: 'M2', minHours: 25, icon: '📋' },
+            { name: 'Clinical Clerk', minHours: 50, icon: '👨‍⚕️' },
+            { name: 'Intern', minHours: 100, icon: '💉' },
+            { name: 'Resident', minHours: 200, icon: '🏥' },
+            { name: 'Fellow', minHours: 350, icon: '🎓' },
+            { name: 'Attending', minHours: 500, icon: '⭐' },
+            { name: 'Department Chair', minHours: 1000, icon: '👑' }
+        ];
+
+        const BADGES = [
+            { id: 'first', name: 'First Steps', icon: '🎯', desc: 'Complete first session', check: s => s.totalSessions >= 1 },
+            { id: 'week', name: 'Week Warrior', icon: '🔥', desc: '7 day streak', check: s => s.currentStreak >= 7 },
+            { id: 'century', name: 'Centurion', icon: '💯', desc: '100 sessions', check: s => s.totalSessions >= 100 },
+            { id: 'night', name: 'Night Owl', icon: '🦉', desc: 'Study past midnight', check: s => s.nightSessions >= 1 },
+            { id: 'neuro', name: 'The Neurologist', icon: '🧠', desc: '10 hrs Neuro', check: s => (s.subjectHours?.neuro || 0) >= 10 },
+            { id: 'cardio', name: 'The Cardiologist', icon: '❤️', desc: '10 hrs Cardio', check: s => (s.subjectHours?.cardio || 0) >= 10 },
+            { id: 'perfect', name: 'Perfect Recall', icon: '✨', desc: '10 perfect exits', check: s => s.perfectExits >= 10 },
+            { id: 'marathon', name: 'Marathon Runner', icon: '🏃', desc: 'Complete 90min session', check: s => s.marathonCompleted }
         ];
 
         const VAULT_APPS = [
             { id: 'instagram', name: 'Instagram', icon: '📷', cost: 15 },
             { id: 'netflix', name: 'Netflix', icon: '🎬', cost: 30 },
             { id: 'youtube', name: 'YouTube', icon: '▶️', cost: 20 },
-            { id: 'twitter', name: 'Twitter', icon: '🐦', cost: 10 }
+            { id: 'twitter', name: 'Twitter/X', icon: '🐦', cost: 10 },
+            { id: 'tiktok', name: 'TikTok', icon: '🎵', cost: 15 },
+            { id: 'games', name: 'Games', icon: '🎮', cost: 25 }
         ];
 
+        const AUDIO_ENVIRONMENTS = [
+            { id: 'silent', name: 'Silent', icon: '🔇' },
+            { id: 'brown', name: 'Brown Noise', icon: '🟤' },
+            { id: 'rain', name: 'Rain', icon: '🌧️' },
+            { id: 'library', name: 'Library', icon: '📚' },
+            { id: 'coffee', name: 'Coffee Shop', icon: '☕' }
+        ];
+
+        const STRICTNESS_LEVELS = [
+            { id: 'intern', name: 'Intern', desc: 'Can pause, exit ticket optional' },
+            { id: 'chief', name: 'Chief Resident', desc: 'No pause, exit required' },
+            { id: 'surgeon', name: 'Surgeon', desc: 'Phone must be face down' }
+        ];
+
+        // ============ STATE ============
         let state = {
             screen: 'home',
             selectedSubject: 'cardio',
             selectedPreset: 'standard',
-            timerState: 'idle',
+            timerState: 'idle', // idle, running, paused, exitTicket, break
             timeRemaining: 1500,
+            totalTime: 1500,
             isBreak: false,
             exitTicketText: '',
             audioEnvironment: 'silent',
@@ -125,16 +255,37 @@
             strictnessLevel: 'intern',
             stats: loadStats(),
             sessions: loadSessions(),
-            alert: null
+            alert: null,
+            faceDownWarning: false
         };
 
         function loadStats() {
-            try { return JSON.parse(localStorage.getItem('synapse_stats')) || { totalHours: 0, totalSessions: 0, currentStreak: 0, longestStreak: 0, vaultBalance: 0, perfectExits: 0, subjectHours: {} }; }
-            catch { return { totalHours: 0, totalSessions: 0, currentStreak: 0, longestStreak: 0, vaultBalance: 0, subjectHours: {} }; }
+            try {
+                const saved = localStorage.getItem('synapse_stats');
+                return saved ? JSON.parse(saved) : getDefaultStats();
+            } catch { return getDefaultStats(); }
+        }
+
+        function getDefaultStats() {
+            return {
+                totalHours: 0,
+                totalSessions: 0,
+                currentStreak: 0,
+                longestStreak: 0,
+                vaultBalance: 0,
+                perfectExits: 0,
+                nightSessions: 0,
+                marathonCompleted: false,
+                subjectHours: {},
+                lastSessionDate: null
+            };
         }
 
         function loadSessions() {
-            try { return JSON.parse(localStorage.getItem('synapse_sessions')) || []; } catch { return []; }
+            try {
+                const saved = localStorage.getItem('synapse_sessions');
+                return saved ? JSON.parse(saved) : [];
+            } catch { return []; }
         }
 
         function saveData() {
@@ -142,6 +293,7 @@
             localStorage.setItem('synapse_sessions', JSON.stringify(state.sessions));
         }
 
+        // ============ HELPERS ============
         function showAlert(message, type = 'error') {
             state.alert = { message, type };
             render();
@@ -150,22 +302,49 @@
 
         function getPreset() { return TIMER_PRESETS.find(p => p.id === state.selectedPreset) || TIMER_PRESETS[0]; }
         function getSubject() { return SUBJECTS.find(s => s.id === state.selectedSubject) || SUBJECTS[0]; }
-        function formatTime(s) { return `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`; }
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
 
-        let timerInterval = null;
+        function getRank() {
+            const hours = state.stats.totalHours;
+            let rank = RANKS[0];
+            for (const r of RANKS) {
+                if (hours >= r.minHours) rank = r;
+            }
+            return rank;
+        }
+
+        function getNextRank() {
+            const hours = state.stats.totalHours;
+            for (const r of RANKS) {
+                if (hours < r.minHours) return r;
+            }
+            return null;
+        }
+
+        function getProgress() {
+            return ((state.totalTime - state.timeRemaining) / state.totalTime) * 100;
+        }
+
+        function getCircumference() { return 2 * Math.PI * 120; }
+
+        // ============ AUDIO ============
         let audioContext = null;
         let audioNodes = [];
 
-        // --- AUDIO ENGINE ---
         function startAudio() {
             if (state.audioEnvironment === 'silent') return;
             stopAudio();
-
+            
             try {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                if (!audioContext) audioContext = new AudioContext();
-                
-                // Brown Noise Generator
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const gainNode = audioContext.createGain();
+                gainNode.gain.value = state.volume * 0.3;
+                gainNode.connect(audioContext.destination);
+
                 if (state.audioEnvironment === 'brown') {
                     const bufferSize = 2 * audioContext.sampleRate;
                     const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
@@ -175,144 +354,263 @@
                         const white = Math.random() * 2 - 1;
                         data[i] = (lastOut + (0.02 * white)) / 1.02;
                         lastOut = data[i];
-                        data[i] *= 3.5; 
+                        data[i] *= 3.5;
                     }
-                    const noise = audioContext.createBufferSource();
-                    noise.buffer = buffer;
-                    noise.loop = true;
-                    const gain = audioContext.createGain();
-                    gain.gain.value = state.volume * 0.5;
-                    noise.connect(gain);
-                    gain.connect(audioContext.destination);
-                    noise.start();
-                    audioNodes.push(noise);
-                } 
-                // Rain Noise Generator (Pinkish)
-                else if (state.audioEnvironment === 'rain') {
-                   const bufferSize = 2 * audioContext.sampleRate;
-                   const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
-                   const data = buffer.getChannelData(0);
-                   for(let i=0; i<bufferSize; i++) {
-                       let b0, b1, b2, b3, b4, b5, b6;
-                       b0 = b1 = b2 = b3 = b4 = b5 = b6 = 0.0;
-                       let white = Math.random() * 2 - 1;
-                       b0 = 0.99886 * b0 + white * 0.0555179;
-                       b1 = 0.99332 * b1 + white * 0.0750759;
-                       b2 = 0.96900 * b2 + white * 0.1538520;
-                       b3 = 0.86650 * b3 + white * 0.3104856;
-                       b4 = 0.55000 * b4 + white * 0.5329522;
-                       b5 = -0.7616 * b5 - white * 0.0168980;
-                       data[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
-                       data[i] *= 0.11; 
-                       b6 = white * 0.115926;
-                   }
-                   const noise = audioContext.createBufferSource();
-                   noise.buffer = buffer;
-                   noise.loop = true;
-                   const gain = audioContext.createGain();
-                   gain.gain.value = state.volume;
-                   noise.connect(gain);
-                   gain.connect(audioContext.destination);
-                   noise.start();
-                   audioNodes.push(noise);
+                    const source = audioContext.createBufferSource();
+                    source.buffer = buffer;
+                    source.loop = true;
+                    source.connect(gainNode);
+                    source.start();
+                    audioNodes.push(source);
+                } else if (state.audioEnvironment === 'rain') {
+                    // Pink noise for rain
+                    const bufferSize = 2 * audioContext.sampleRate;
+                    const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+                    for (let i = 0; i < bufferSize; i++) {
+                        const white = Math.random() * 2 - 1;
+                        b0 = 0.99886 * b0 + white * 0.0555179;
+                        b1 = 0.99332 * b1 + white * 0.0750759;
+                        b2 = 0.96900 * b2 + white * 0.1538520;
+                        b3 = 0.86650 * b3 + white * 0.3104856;
+                        b4 = 0.55000 * b4 + white * 0.5329522;
+                        b5 = -0.7616 * b5 - white * 0.0168980;
+                        data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
+                        b6 = white * 0.115926;
+                    }
+                    const source = audioContext.createBufferSource();
+                    source.buffer = buffer;
+                    source.loop = true;
+                    source.connect(gainNode);
+                    source.start();
+                    audioNodes.push(source);
+                } else {
+                    // Generic ambient noise for library/coffee
+                    const bufferSize = 2 * audioContext.sampleRate;
+                    const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        data[i] = (Math.random() * 2 - 1) * 0.1;
+                    }
+                    const source = audioContext.createBufferSource();
+                    source.buffer = buffer;
+                    source.loop = true;
+                    const filter = audioContext.createBiquadFilter();
+                    filter.type = 'lowpass';
+                    filter.frequency.value = state.audioEnvironment === 'library' ? 200 : 800;
+                    source.connect(filter);
+                    filter.connect(gainNode);
+                    source.start();
+                    audioNodes.push(source);
                 }
             } catch (e) {
-                console.log("Audio not supported or blocked", e);
+                console.log('Audio not supported');
             }
         }
 
         function stopAudio() {
-            audioNodes.forEach(node => { try { node.stop(); } catch {} });
+            audioNodes.forEach(node => {
+                try { node.stop(); } catch {}
+            });
             audioNodes = [];
+            if (audioContext) {
+                try { audioContext.close(); } catch {}
+                audioContext = null;
+            }
         }
 
-        function updateVolume() {
-            // Very basic volume update - for real time we'd need to store gain nodes
-            // For this simple version, we just restart audio if running
-            if (state.timerState === 'running') startAudio();
+        function updateVolume(vol) {
+            state.volume = vol;
+            if (audioContext) {
+                stopAudio();
+                if (state.timerState === 'running') startAudio();
+            }
         }
+
+        // ============ TIMER ============
+        let timerInterval = null;
 
         function startTimer() {
             if (state.timerState === 'running') return;
+            
             if (state.timerState === 'idle') {
                 state.timeRemaining = getPreset().work * 60;
+                state.totalTime = state.timeRemaining;
                 state.isBreak = false;
             }
+            
             state.timerState = 'running';
-            startAudio(); 
+            startAudio();
             
             timerInterval = setInterval(() => {
                 state.timeRemaining--;
+                
                 if (state.timeRemaining <= 0) {
                     clearInterval(timerInterval);
                     stopAudio();
+                    
                     if (state.isBreak) {
                         state.timerState = 'idle';
                         state.timeRemaining = getPreset().work * 60;
+                        state.totalTime = state.timeRemaining;
                         state.isBreak = false;
-                        showAlert('Break over!', 'success');
+                        showAlert('Break complete! Ready for next session.', 'success');
                     } else {
                         state.timerState = 'exitTicket';
                         state.exitTicketText = '';
+                        // Play notification sound
+                        try {
+                            const ctx = new AudioContext();
+                            const osc = ctx.createOscillator();
+                            const gain = ctx.createGain();
+                            osc.connect(gain);
+                            gain.connect(ctx.destination);
+                            osc.frequency.value = 800;
+                            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                            osc.start(ctx.currentTime);
+                            osc.stop(ctx.currentTime + 0.5);
+                        } catch {}
                     }
                 }
                 render();
             }, 1000);
+            
             render();
         }
 
         function pauseTimer() {
-            if (state.strictnessLevel !== 'intern') return showAlert('Cannot pause!', 'error');
+            if (state.strictnessLevel !== 'intern') {
+                return showAlert('Cannot pause in this strictness level!', 'error');
+            }
             clearInterval(timerInterval);
-            state.timerState = 'paused';
             stopAudio();
+            state.timerState = 'paused';
             render();
         }
 
         function resetTimer() {
             clearInterval(timerInterval);
+            stopAudio();
             state.timerState = 'idle';
             state.timeRemaining = getPreset().work * 60;
+            state.totalTime = state.timeRemaining;
             state.isBreak = false;
+            render();
+        }
+
+        function failSession() {
+            clearInterval(timerInterval);
             stopAudio();
+            state.timerState = 'idle';
+            state.timeRemaining = getPreset().work * 60;
+            state.totalTime = state.timeRemaining;
+            state.isBreak = false;
+            showAlert('Session failed. Streak frozen.', 'error');
             render();
         }
 
         function validateExitTicket() {
-            const text = state.exitTicketText.toLowerCase();
-            const bullets = text.split('\n').filter(l => l.trim().length > 0);
-            if (bullets.length < 3) return showAlert('Need 3+ bullets', 'error');
+            const text = state.exitTicketText.toLowerCase().trim();
+            const bullets = text.split('\n').filter(line => line.trim().length > 0);
+            
+            if (bullets.length < 3) {
+                return showAlert('Please enter at least 3 bullet points!', 'error');
+            }
             
             const subject = getSubject();
-            const keywords = subject.keywords.filter(kw => text.includes(kw.toLowerCase()));
+            const foundKeywords = subject.keywords.filter(kw => text.includes(kw.toLowerCase()));
+            const isValid = foundKeywords.length >= 2 || state.strictnessLevel === 'intern';
             
-            if (keywords.length >= 2 || state.strictnessLevel === 'intern') {
+            if (isValid) {
                 const preset = getPreset();
                 const hours = preset.work / 60;
+                const vaultMinutes = Math.floor(preset.work / 6);
+                
+                // Update stats
                 state.stats.totalHours += hours;
                 state.stats.totalSessions++;
-                state.stats.vaultBalance += Math.floor(preset.work / 6);
+                state.stats.vaultBalance += vaultMinutes;
                 state.stats.currentStreak++;
-                if(!state.stats.subjectHours[state.selectedSubject]) state.stats.subjectHours[state.selectedSubject] = 0;
+                if (state.stats.currentStreak > state.stats.longestStreak) {
+                    state.stats.longestStreak = state.stats.currentStreak;
+                }
+                
+                // Subject hours
+                if (!state.stats.subjectHours[state.selectedSubject]) {
+                    state.stats.subjectHours[state.selectedSubject] = 0;
+                }
                 state.stats.subjectHours[state.selectedSubject] += hours;
                 
-                state.sessions.unshift({ id: Date.now(), subject: state.selectedSubject, duration: preset.work, date: new Date().toISOString() });
+                // Check for perfect exit (many keywords)
+                if (foundKeywords.length >= 4) {
+                    state.stats.perfectExits = (state.stats.perfectExits || 0) + 1;
+                }
+                
+                // Check for night session
+                const hour = new Date().getHours();
+                if (hour >= 0 && hour < 5) {
+                    state.stats.nightSessions = (state.stats.nightSessions || 0) + 1;
+                }
+                
+                // Check for marathon
+                if (preset.work >= 90) {
+                    state.stats.marathonCompleted = true;
+                }
+                
+                state.stats.lastSessionDate = new Date().toISOString().split('T')[0];
+                
+                // Add session to history
+                state.sessions.unshift({
+                    id: Date.now(),
+                    subject: state.selectedSubject,
+                    duration: preset.work,
+                    date: new Date().toISOString(),
+                    notes: state.exitTicketText,
+                    passed: true
+                });
+                
+                // Keep only last 100 sessions
+                if (state.sessions.length > 100) {
+                    state.sessions = state.sessions.slice(0, 100);
+                }
+                
                 saveData();
                 
+                // Start break
                 state.timerState = 'break';
                 state.timeRemaining = preset.break * 60;
+                state.totalTime = state.timeRemaining;
                 state.isBreak = true;
                 startTimer();
-                showAlert(`Session Complete! +${Math.floor(preset.work / 6)} vault min`, 'success');
+                
+                showAlert(`Session Complete! +${vaultMinutes} vault minutes`, 'success');
             } else {
-                showAlert('Validation failed. Use more keywords.', 'error');
+                showAlert(`Include more ${subject.name} keywords in your notes.`, 'error');
             }
         }
 
+        // ============ RENDER ============
         function render() {
             const root = document.getElementById('root');
-            root.innerHTML = `<div class="app">${state.alert ? `<div class="alert ${state.alert.type}">${state.alert.message}</div>` : ''}${renderScreen()}${renderNav()}</div>`;
+            root.innerHTML = `
+                <div class="app">
+                    ${state.alert ? renderAlert() : ''}
+                    ${state.faceDownWarning ? renderFaceDownWarning() : ''}
+                    ${renderScreen()}
+                    ${renderNav()}
+                </div>
+            `;
             attachEvents();
+        }
+
+        function renderAlert() {
+            return `<div class="alert ${state.alert.type}">${state.alert.type === 'success' ? '✓' : state.alert.type === 'error' ? '✕' : '⚠'} ${state.alert.message}</div>`;
+        }
+
+        function renderFaceDownWarning() {
+            return `<div class="face-down-warning"><h2>⚠️ Phone Lifted!</h2><p>Place phone face down to continue</p></div>`;
         }
 
         function renderNav() {
@@ -322,111 +620,612 @@
                 { id: 'dashboard', icon: '📊', label: 'Chart' },
                 { id: 'profile', icon: '👤', label: 'Profile' },
                 { id: 'vault', icon: '🎁', label: 'Vault' },
-                { id: 'settings', icon: '⚙️', label: 'Settings' } // Added Settings Back
+                { id: 'settings', icon: '⚙️', label: 'Settings' }
             ];
-            return `<nav class="nav">${items.map(i => `<button class="nav-btn ${state.screen === i.id ? 'active' : ''}" data-screen="${i.id}"><span style="font-size:20px;">${i.icon}</span><span>${i.label}</span></button>`).join('')}</nav>`;
+            return `
+                <nav class="nav">
+                    ${items.map(item => `
+                        <button class="nav-btn ${state.screen === item.id ? 'active' : ''}" data-screen="${item.id}">
+                            <span class="nav-icon">${item.icon}</span>
+                            <span>${item.label}</span>
+                        </button>
+                    `).join('')}
+                </nav>
+            `;
         }
 
         function renderScreen() {
-            if (state.screen === 'home') return renderHome();
-            if (state.screen === 'timer') return renderTimer();
-            if (state.screen === 'dashboard') return renderDashboard();
-            if (state.screen === 'profile') return renderProfile();
-            if (state.screen === 'vault') return renderVault();
-            if (state.screen === 'settings') return renderSettings(); // Added Settings Screen Logic
-            return renderHome();
+            switch (state.screen) {
+                case 'home': return renderHome();
+                case 'timer': return renderTimer();
+                case 'dashboard': return renderDashboard();
+                case 'profile': return renderProfile();
+                case 'vault': return renderVault();
+                case 'settings': return renderSettings();
+                default: return renderHome();
+            }
         }
 
         function renderHome() {
-            return `<div class="screen"><div class="header"><div class="logo">🧠</div><h1 class="title">SYNAPSE</h1><p class="subtitle">Proof-of-Work Focus Tool</p></div>
-            <div class="card"><div class="card-title">Subject</div><select class="select" id="subjectSelect">${SUBJECTS.map(s => `<option value="${s.id}" ${s.id === state.selectedSubject ? 'selected' : ''}>${s.icon} ${s.name}</option>`).join('')}</select></div>
-            <div class="card"><div class="card-title">Preset</div><select class="select" id="presetSelect">${TIMER_PRESETS.map(p => `<option value="${p.id}" ${p.id === state.selectedPreset ? 'selected' : ''}>${p.name} (${p.work}m)</option>`).join('')}</select></div>
-            <button class="btn btn-primary" id="beginBtn">⚡ Begin Shift</button></div>`;
+            const preset = getPreset();
+            const subject = getSubject();
+            return `
+                <div class="screen">
+                    <div class="header">
+                        <div class="logo">🧠</div>
+                        <h1 class="title">SYNAPSE</h1>
+                        <p class="subtitle">Proof-of-Work Focus Tool</p>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">📚 Study Subject</div>
+                        <select class="select" id="subjectSelect">
+                            ${SUBJECTS.map(s => `
+                                <option value="${s.id}" ${s.id === state.selectedSubject ? 'selected' : ''}>
+                                    ${s.icon} ${s.name}
+                                </option>
+                            `).join('')}
+                        </select>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">⏱️ Timer Preset</div>
+                        <select class="select" id="presetSelect">
+                            ${TIMER_PRESETS.map(p => `
+                                <option value="${p.id}" ${p.id === state.selectedPreset ? 'selected' : ''}>
+                                    ${p.name} (${p.work}m / ${p.break}m) - ${p.description}
+                                </option>
+                            `).join('')}
+                        </select>
+                    </div>
+                    
+                    <div class="stats-grid" style="margin-bottom: 20px;">
+                        <div class="stat-card">
+                            <div class="stat-value">${state.stats.totalHours.toFixed(1)}</div>
+                            <div class="stat-label">Total Hours</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${state.stats.currentStreak}</div>
+                            <div class="stat-label">Day Streak 🔥</div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" id="beginBtn">
+                        ⚡ Begin Your Shift
+                    </button>
+                </div>
+            `;
         }
 
         function renderTimer() {
-            if (state.timerState === 'exitTicket') return renderExitTicket();
-            const total = state.isBreak ? getPreset().break * 60 : getPreset().work * 60;
-            const progress = ((total - state.timeRemaining) / total) * 100;
-            return `<div class="screen">
-            <div style="text-align:right; margin-bottom:10px;"><button class="timer-btn" style="width:40px;height:40px;font-size:16px;margin-left:auto;" id="volumeBtn">🔊</button></div>
-            ${state.showVolume ? `<div class="volume-control"><input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="${state.volume * 100}" /></div>` : ''}
-            <div class="timer-display"><div class="timer-time ${state.timerState==='running'?'pulsing':''}">${formatTime(state.timeRemaining)}</div><div class="timer-label">${state.isBreak?'Break':'Focus'}</div></div>
-            <div class="timer-controls"><button class="timer-btn" id="resetBtn">↺</button>${state.timerState === 'running' ? `<button class="timer-btn primary" id="pauseBtn">⏸</button>` : `<button class="timer-btn primary" id="playBtn">▶</button>`}</div></div>`;
+            if (state.timerState === 'exitTicket') {
+                return renderExitTicket();
+            }
+            
+            const progress = getProgress();
+            const circumference = getCircumference();
+            const offset = circumference - (progress / 100) * circumference;
+            const subject = getSubject();
+            
+            return `
+                <div class="screen timer-container">
+                    <div class="audio-controls">
+                        <button class="audio-btn" id="audioBtn">
+                            ${state.volume === 0 ? '🔇' : state.volume < 0.5 ? '🔉' : '🔊'}
+                        </button>
+                        ${state.showVolume ? `
+                            <div class="volume-popup">
+                                <div class="volume-label">${AUDIO_ENVIRONMENTS.find(a => a.id === state.audioEnvironment)?.name || 'Silent'}</div>
+                                <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="${state.volume * 100}">
+                                <div class="volume-label">${Math.round(state.volume * 100)}%</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="timer-ring-container ${state.timerState === 'running' ? 'glowing' : ''}">
+                        <svg class="timer-ring" viewBox="0 0 260 260">
+                            <defs>
+                                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#0891b2" />
+                                    <stop offset="100%" stop-color="#22d3ee" />
+                                </linearGradient>
+                            </defs>
+                            <circle class="timer-ring-bg" cx="130" cy="130" r="120" />
+                            <circle 
+                                class="timer-ring-progress" 
+                                cx="130" 
+                                cy="130" 
+                                r="120"
+                                stroke-dasharray="${circumference}"
+                                stroke-dashoffset="${offset}"
+                            />
+                        </svg>
+                        <div class="timer-center">
+                            <div class="timer-time ${state.timerState === 'running' ? 'pulsing' : ''}">${formatTime(state.timeRemaining)}</div>
+                            <div class="timer-label">${state.isBreak ? '☕ Break Time' : '🎯 Focus Mode'}</div>
+                            <div class="timer-subject">${subject.icon} ${subject.name}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timer-controls">
+                        <button class="timer-btn danger" id="resetBtn" title="Reset">↺</button>
+                        ${state.timerState === 'running' 
+                            ? `<button class="timer-btn primary" id="pauseBtn" title="Pause">⏸</button>`
+                            : `<button class="timer-btn primary" id="playBtn" title="Start">▶</button>`
+                        }
+                        <button class="timer-btn" id="skipBtn" title="Skip">⏭</button>
+                    </div>
+                </div>
+            `;
         }
 
         function renderExitTicket() {
-            return `<div class="exit-ticket"><h2>🎓 Exit Ticket</h2><p>3 bullet points about ${getSubject().name}</p>
-            <div class="card"><textarea id="exitTextarea" placeholder="• Learned...">${state.exitTicketText}</textarea></div>
-            <button class="btn btn-primary" id="submitExitBtn">Submit</button></div>`;
+            const subject = getSubject();
+            return `
+                <div class="exit-ticket">
+                    <div class="exit-ticket-header">
+                        <h2>🎓 Exit Ticket</h2>
+                        <p>Summarize what you learned about ${subject.name}</p>
+                    </div>
+                    
+                    <div class="card">
+                        <textarea 
+                            class="exit-textarea" 
+                            id="exitTextarea" 
+                            placeholder="• First key concept I learned...&#10;• Second important point...&#10;• Third takeaway..."
+                        >${state.exitTicketText}</textarea>
+                        
+                        <div class="keyword-hint">
+                            <strong>💡 Tip:</strong> Include keywords like: ${subject.keywords.slice(0, 5).join(', ')}
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" id="submitExitBtn">
+                        ✓ Submit & Start Break
+                    </button>
+                    
+                    <button class="btn btn-secondary" id="skipExitBtn" style="margin-top: 12px;">
+                        Skip (Streak won't count)
+                    </button>
+                </div>
+            `;
         }
 
         function renderDashboard() {
-            const data = state.sessions.slice(0, 5);
-            return `<div class="screen"><h2 style="margin-bottom:20px;">📊 Clinical Chart</h2>
-            <div class="card"><div class="card-title">Recent</div>${data.length ? data.map(s => `<div style="padding:8px;border-bottom:1px solid #334;">${s.subject} - ${s.duration}m</div>`).join('') : '<p style="text-align:center;color:#666">No sessions</p>'}</div>
-            <div class="card"><div class="card-title">Heatmap</div><div class="heatmap">${Array(60).fill('').map(() => `<div class="heatmap-cell ${Math.random() > 0.7 ? 'l4' : 'l1'}"></div>`).join('')}</div></div></div>`;
+            const recentSessions = state.sessions.slice(0, 5);
+            const subjectStats = Object.entries(state.stats.subjectHours || {})
+                .map(([id, hours]) => ({ ...SUBJECTS.find(s => s.id === id), hours }))
+                .filter(s => s.hours)
+                .sort((a, b) => b.hours - a.hours)
+                .slice(0, 5);
+            
+            return `
+                <div class="screen">
+                    <h2 style="margin-bottom: 20px; font-size: 24px;">📊 Clinical Chart</h2>
+                    
+                    <div class="stats-grid" style="margin-bottom: 20px;">
+                        <div class="stat-card">
+                            <div class="stat-value">${state.stats.totalHours.toFixed(1)}</div>
+                            <div class="stat-label">Total Hours</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${state.stats.totalSessions}</div>
+                            <div class="stat-label">Sessions</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${state.stats.currentStreak}</div>
+                            <div class="stat-label">Current Streak</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${state.stats.longestStreak}</div>
+                            <div class="stat-label">Best Streak</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">📅 Activity Heatmap</div>
+                        <div class="heatmap">
+                            ${generateHeatmap()}
+                        </div>
+                        <div style="display: flex; justify-content: flex-end; gap: 4px; margin-top: 8px; font-size: 10px; color: #64748b;">
+                            <span>Less</span>
+                            <div class="heatmap-cell" style="width: 12px; height: 12px;"></div>
+                            <div class="heatmap-cell l1" style="width: 12px; height: 12px;"></div>
+                            <div class="heatmap-cell l2" style="width: 12px; height: 12px;"></div>
+                            <div class="heatmap-cell l3" style="width: 12px; height: 12px;"></div>
+                            <div class="heatmap-cell l4" style="width: 12px; height: 12px;"></div>
+                            <span>More</span>
+                        </div>
+                    </div>
+                    
+                    ${subjectStats.length > 0 ? `
+                        <div class="card">
+                            <div class="card-title">📚 Subject Distribution</div>
+                            ${subjectStats.map(s => `
+                                <div style="margin-bottom: 12px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                        <span>${s.icon} ${s.name}</span>
+                                        <span style="color: #06b6d4;">${s.hours.toFixed(1)}h</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: ${(s.hours / state.stats.totalHours) * 100}%"></div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    
+                    <div class="card">
+                        <div class="card-title">🕐 Recent Sessions</div>
+                        ${recentSessions.length > 0 ? recentSessions.map(session => {
+                            const subject = SUBJECTS.find(s => s.id === session.subject) || { icon: '📖', name: 'Study' };
+                            const date = new Date(session.date);
+                            return `
+                                <div class="session-item">
+                                    <div class="session-icon">${subject.icon}</div>
+                                    <div class="session-info">
+                                        <div class="session-subject">${subject.name}</div>
+                                        <div class="session-meta">${date.toLocaleDateString()} at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                    </div>
+                                    <div class="session-duration">${session.duration}m</div>
+                                </div>
+                            `;
+                        }).join('') : '<p style="text-align: center; color: #64748b; padding: 20px;">No sessions yet. Start your first one!</p>'}
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateHeatmap() {
+            const cells = [];
+            const today = new Date();
+            for (let i = 83; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                const sessionsOnDay = state.sessions.filter(s => s.date.startsWith(dateStr)).length;
+                let level = '';
+                if (sessionsOnDay >= 4) level = 'l4';
+                else if (sessionsOnDay >= 3) level = 'l3';
+                else if (sessionsOnDay >= 2) level = 'l2';
+                else if (sessionsOnDay >= 1) level = 'l1';
+                cells.push(`<div class="heatmap-cell ${level}" title="${dateStr}: ${sessionsOnDay} sessions"></div>`);
+            }
+            return cells.join('');
         }
 
         function renderProfile() {
-             return `<div class="screen"><div class="profile-header"><div class="avatar">👤</div><div class="rank">Student</div><div class="rank-subtitle">${state.stats.totalHours.toFixed(1)} hrs</div></div>
-             <div class="card"><div class="card-title">Stats</div><div class="stats-grid"><div class="stat-card"><div class="stat-value">${state.stats.totalSessions}</div><div class="stat-label">Sessions</div></div><div class="stat-card"><div class="stat-value">${state.stats.currentStreak}</div><div class="stat-label">Streak</div></div></div></div></div>`;
+            const rank = getRank();
+            const nextRank = getNextRank();
+            const progress = nextRank 
+                ? ((state.stats.totalHours - rank.minHours) / (nextRank.minHours - rank.minHours)) * 100
+                : 100;
+            
+            return `
+                <div class="screen">
+                    <div class="profile-header">
+                        <div class="avatar">${rank.icon}</div>
+                        <div class="rank-name">${rank.name}</div>
+                        <div class="rank-subtitle">${state.stats.totalHours.toFixed(1)} hours of focused study</div>
+                        
+                        ${nextRank ? `
+                            <div class="progress-bar" style="margin-top: 20px;">
+                                <div class="progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                            <div class="progress-label">
+                                <span>${rank.name}</span>
+                                <span>${nextRank.minHours - state.stats.totalHours.toFixed(0)}h to ${nextRank.name}</span>
+                            </div>
+                        ` : '<p style="color: #06b6d4; margin-top: 16px;">🎉 Maximum rank achieved!</p>'}
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">📈 Statistics</div>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value">${state.stats.totalSessions}</div>
+                                <div class="stat-label">Total Sessions</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${state.stats.currentStreak}</div>
+                                <div class="stat-label">Current Streak</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${state.stats.longestStreak}</div>
+                                <div class="stat-label">Best Streak</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${state.stats.perfectExits || 0}</div>
+                                <div class="stat-label">Perfect Exits</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">🏆 Badges</div>
+                        <div class="badges-grid">
+                            ${BADGES.map(badge => {
+                                const unlocked = badge.check(state.stats);
+                                return `
+                                    <div class="badge ${unlocked ? '' : 'locked'}" title="${badge.desc}">
+                                        ${badge.icon} ${badge.name}
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">🎓 Rank Progression</div>
+                        ${RANKS.map((r, i) => `
+                            <div style="display: flex; align-items: center; gap: 12px; padding: 8px 0; opacity: ${state.stats.totalHours >= r.minHours ? 1 : 0.4}">
+                                <span style="font-size: 24px;">${r.icon}</span>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 500;">${r.name}</div>
+                                    <div style="font-size: 12px; color: #64748b;">${r.minHours}+ hours</div>
+                                </div>
+                                ${state.stats.totalHours >= r.minHours ? '<span style="color: #10b981;">✓</span>' : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
         }
 
         function renderVault() {
-            return `<div class="screen"><div class="vault-balance"><div class="vault-amount">${state.stats.vaultBalance}</div><div class="vault-label">Minutes</div></div>
-            <div class="card"><div class="app-grid">${VAULT_APPS.map(a => `<div class="app-item ${state.stats.vaultBalance < a.cost ? 'locked' : ''}" onclick="unlockApp('${a.name}', ${a.cost})"><div class="app-icon">${a.icon}</div><div class="app-name">${a.name}</div><div class="app-cost">${a.cost}m</div></div>`).join('')}</div></div></div>`;
+            return `
+                <div class="screen">
+                    <h2 style="margin-bottom: 20px; font-size: 24px;">🎁 Guilt-Free Vault</h2>
+                    
+                    <div class="vault-header">
+                        <div class="vault-amount">${state.stats.vaultBalance}</div>
+                        <div class="vault-label">Minutes Available</div>
+                        <div class="vault-info">1 hour focus = 10 minutes guilt-free leisure</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">📱 Unlock Apps</div>
+                        <div class="app-grid">
+                            ${VAULT_APPS.map(app => {
+                                const canUnlock = state.stats.vaultBalance >= app.cost;
+                                return `
+                                    <div class="app-item ${canUnlock ? '' : 'locked'}" data-app="${app.id}" data-cost="${app.cost}">
+                                        <div class="app-icon">${app.icon}</div>
+                                        <div class="app-name">${app.name}</div>
+                                        <div class="app-cost">${app.cost} min</div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">💡 How It Works</div>
+                        <p style="color: #94a3b8; font-size: 14px; line-height: 1.6;">
+                            Every hour of focused study earns you 10 minutes of guilt-free leisure time. 
+                            "Spend" your minutes to symbolically unlock your favorite apps. 
+                            This isn't about restriction—it's about earning your relaxation through productive work.
+                        </p>
+                    </div>
+                </div>
+            `;
         }
 
-        // --- ADDED SETTINGS SCREEN ---
         function renderSettings() {
-            return `<div class="screen"><h2 style="margin-bottom:20px;">⚙️ Settings</h2>
-            <div class="card"><div class="card-title">Audio Environment</div><select class="select" id="audioSelect">
-            <option value="silent" ${state.audioEnvironment === 'silent' ? 'selected' : ''}>🔇 Silent</option>
-            <option value="brown" ${state.audioEnvironment === 'brown' ? 'selected' : ''}>🟤 Brown Noise</option>
-            <option value="rain" ${state.audioEnvironment === 'rain' ? 'selected' : ''}>🌧️ Rain</option>
-            </select></div>
-            <div class="card"><div class="card-title">Strictness</div><select class="select" id="strictnessSelect">
-            <option value="intern" ${state.strictnessLevel === 'intern' ? 'selected' : ''}>Intern (Easy)</option>
-            <option value="surgeon" ${state.strictnessLevel === 'surgeon' ? 'selected' : ''}>Surgeon (Hard)</option>
-            </select></div>
-            <div class="card"><button class="btn" style="background:#ef4444;" id="resetDataBtn">Reset Data</button></div></div>`;
+            return `
+                <div class="screen">
+                    <h2 style="margin-bottom: 20px; font-size: 24px;">⚙️ Settings</h2>
+                    
+                    <div class="settings-section">
+                        <div class="settings-section-title">Audio Environment</div>
+                        <div class="card" style="padding: 0;">
+                            ${AUDIO_ENVIRONMENTS.map(audio => `
+                                <div class="settings-item" data-audio="${audio.id}" style="cursor: pointer;">
+                                    <span class="settings-item-label">${audio.icon} ${audio.name}</span>
+                                    ${state.audioEnvironment === audio.id ? '<span style="color: #10b981;">✓</span>' : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <div class="settings-section-title">Strictness Level</div>
+                        <div class="card" style="padding: 0;">
+                            ${STRICTNESS_LEVELS.map(level => `
+                                <div class="settings-item" data-strictness="${level.id}" style="cursor: pointer;">
+                                    <div>
+                                        <div class="settings-item-label">${level.name}</div>
+                                        <div style="font-size: 12px; color: #64748b;">${level.desc}</div>
+                                    </div>
+                                    ${state.strictnessLevel === level.id ? '<span style="color: #10b981;">✓</span>' : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <div class="settings-section-title">Data</div>
+                        <button class="btn btn-secondary" id="exportBtn" style="margin-bottom: 12px;">
+                            📄 Export Study Data
+                        </button>
+                        <button class="btn btn-danger" id="resetDataBtn">
+                            🗑️ Reset All Data
+                        </button>
+                    </div>
+                </div>
+            `;
         }
 
-        function unlockApp(name, cost) {
-            if(state.stats.vaultBalance >= cost) {
-                state.stats.vaultBalance -= cost;
-                saveData();
-                showAlert(`Unlocked ${name}`, 'success');
-            } else showAlert('Not enough minutes', 'error');
-        }
-
+        // ============ EVENTS ============
         function attachEvents() {
-            document.querySelectorAll('.nav-btn').forEach(b => b.onclick = () => { state.screen = b.dataset.screen; render(); });
+            // Navigation
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.onclick = () => {
+                    state.screen = btn.dataset.screen;
+                    render();
+                };
+            });
+            
+            // Home screen
+            const subjectSelect = document.getElementById('subjectSelect');
+            if (subjectSelect) {
+                subjectSelect.onchange = (e) => {
+                    state.selectedSubject = e.target.value;
+                };
+            }
+            
+            const presetSelect = document.getElementById('presetSelect');
+            if (presetSelect) {
+                presetSelect.onchange = (e) => {
+                    state.selectedPreset = e.target.value;
+                    if (state.timerState === 'idle') {
+                        state.timeRemaining = getPreset().work * 60;
+                        state.totalTime = state.timeRemaining;
+                    }
+                };
+            }
+            
             const beginBtn = document.getElementById('beginBtn');
-            if(beginBtn) beginBtn.onclick = () => { state.screen = 'timer'; state.timeRemaining = getPreset().work*60; render(); };
+            if (beginBtn) {
+                beginBtn.onclick = () => {
+                    state.screen = 'timer';
+                    state.timeRemaining = getPreset().work * 60;
+                    state.totalTime = state.timeRemaining;
+                    render();
+                };
+            }
             
-            const playBtn = document.getElementById('playBtn'); if(playBtn) playBtn.onclick = startTimer;
-            const pauseBtn = document.getElementById('pauseBtn'); if(pauseBtn) pauseBtn.onclick = pauseTimer;
-            const resetBtn = document.getElementById('resetBtn'); if(resetBtn) resetBtn.onclick = resetTimer;
+            // Timer controls
+            const playBtn = document.getElementById('playBtn');
+            if (playBtn) playBtn.onclick = startTimer;
             
-            const submitBtn = document.getElementById('submitExitBtn'); if(submitBtn) submitBtn.onclick = validateExitTicket;
-            const exitText = document.getElementById('exitTextarea'); if(exitText) exitText.oninput = (e) => state.exitTicketText = e.target.value;
+            const pauseBtn = document.getElementById('pauseBtn');
+            if (pauseBtn) pauseBtn.onclick = pauseTimer;
             
-            const subSel = document.getElementById('subjectSelect'); if(subSel) subSel.onchange = (e) => state.selectedSubject = e.target.value;
-            const preSel = document.getElementById('presetSelect'); if(preSel) preSel.onchange = (e) => { state.selectedPreset = e.target.value; };
+            const resetBtn = document.getElementById('resetBtn');
+            if (resetBtn) resetBtn.onclick = resetTimer;
             
-            // Audio & Settings Events
-            const audioSel = document.getElementById('audioSelect'); if(audioSel) audioSel.onchange = (e) => state.audioEnvironment = e.target.value;
-            const strictSel = document.getElementById('strictnessSelect'); if(strictSel) strictSel.onchange = (e) => state.strictnessLevel = e.target.value;
+            const skipBtn = document.getElementById('skipBtn');
+            if (skipBtn) {
+                skipBtn.onclick = () => {
+                    if (state.isBreak) {
+                        resetTimer();
+                        showAlert('Break skipped. Ready for next session!', 'success');
+                    }
+                };
+            }
             
-            const volBtn = document.getElementById('volumeBtn'); if(volBtn) volBtn.onclick = () => { state.showVolume = !state.showVolume; render(); };
-            const volSlide = document.getElementById('volumeSlider'); if(volSlide) volSlide.oninput = (e) => { state.volume = e.target.value/100; updateVolume(); };
+            // Audio controls
+            const audioBtn = document.getElementById('audioBtn');
+            if (audioBtn) {
+                audioBtn.onclick = () => {
+                    state.showVolume = !state.showVolume;
+                    render();
+                };
+            }
             
-            const resetDataBtn = document.getElementById('resetDataBtn'); if(resetDataBtn) resetDataBtn.onclick = () => { if(confirm('Reset all stats?')) { localStorage.clear(); location.reload(); }};
+            const volumeSlider = document.getElementById('volumeSlider');
+            if (volumeSlider) {
+                volumeSlider.oninput = (e) => {
+                    updateVolume(e.target.value / 100);
+                    render();
+                };
+            }
+            
+            // Exit ticket
+            const exitTextarea = document.getElementById('exitTextarea');
+            if (exitTextarea) {
+                exitTextarea.oninput = (e) => {
+                    state.exitTicketText = e.target.value;
+                };
+                exitTextarea.focus();
+            }
+            
+            const submitExitBtn = document.getElementById('submitExitBtn');
+            if (submitExitBtn) submitExitBtn.onclick = validateExitTicket;
+            
+            const skipExitBtn = document.getElementById('skipExitBtn');
+            if (skipExitBtn) {
+                skipExitBtn.onclick = () => {
+                    resetTimer();
+                    showAlert('Session skipped. Streak not updated.', 'warning');
+                };
+            }
+            
+            // Vault apps
+            document.querySelectorAll('.app-item:not(.locked)').forEach(item => {
+                item.onclick = () => {
+                    const cost = parseInt(item.dataset.cost);
+                    const appName = item.querySelector('.app-name').textContent;
+                    if (state.stats.vaultBalance >= cost) {
+                        state.stats.vaultBalance -= cost;
+                        saveData();
+                        showAlert(`🎉 Unlocked ${cost} minutes of ${appName}!`, 'success');
+                        render();
+                    }
+                };
+            });
+            
+            // Settings - Audio
+            document.querySelectorAll('[data-audio]').forEach(item => {
+                item.onclick = () => {
+                    state.audioEnvironment = item.dataset.audio;
+                    if (state.timerState === 'running') {
+                        stopAudio();
+                        startAudio();
+                    }
+                    render();
+                };
+            });
+            
+            // Settings - Strictness
+            document.querySelectorAll('[data-strictness]').forEach(item => {
+                item.onclick = () => {
+                    state.strictnessLevel = item.dataset.strictness;
+                    render();
+                };
+            });
+            
+            // Settings - Export
+            const exportBtn = document.getElementById('exportBtn');
+            if (exportBtn) {
+                exportBtn.onclick = () => {
+                    const data = {
+                        stats: state.stats,
+                        sessions: state.sessions,
+                        exportDate: new Date().toISOString()
+                    };
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `synapse-export-${new Date().toISOString().split('T')[0]}.json`;
+                    a.click();
+                    showAlert('Data exported successfully!', 'success');
+                };
+            }
+            
+            // Settings - Reset
+            const resetDataBtn = document.getElementById('resetDataBtn');
+            if (resetDataBtn) {
+                resetDataBtn.onclick = () => {
+                    if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
+                        state.stats = getDefaultStats();
+                        state.sessions = [];
+                        saveData();
+                        showAlert('All data has been reset.', 'success');
+                        render();
+                    }
+                };
+            }
         }
 
-        // Initialize
+        // ============ SERVICE WORKER ============
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').catch(() => {});
+        }
+
+        // ============ INIT ============
         render();
     </script>
 </body>
