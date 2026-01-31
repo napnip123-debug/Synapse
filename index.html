@@ -1,1232 +1,3295 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="theme-color" content="#0891b2" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <link rel="manifest" href="./manifest.json" />
-    <title>Synapse - Medical Study Focus App</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Synapse - Proof-of-Work Focus Tool</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0a0e1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #fff; height: 100%; }
-        body { height: 100%; overflow-x: hidden; }
-        #root { height: 100%; }
-        .app { min-height: 100vh; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); }
-        
-        /* Navigation */
-        .nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border-top: 1px solid rgba(6, 182, 212, 0.2); display: flex; justify-content: space-around; padding: 8px 0; z-index: 50; }
-        .nav-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 12px; background: none; border: none; color: #64748b; font-size: 10px; cursor: pointer; transition: all 0.2s; }
-        .nav-btn.active, .nav-btn:hover { color: #06b6d4; }
-        .nav-btn.active .nav-icon { transform: scale(1.1); }
-        .nav-icon { font-size: 20px; transition: transform 0.2s; }
-        
-        /* Screen */
-        .screen { padding: 20px; padding-bottom: 100px; max-width: 500px; margin: 0 auto; }
-        
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #111827;
+            --bg-tertiary: #1f2937;
+            --bg-card: rgba(31, 41, 55, 0.6);
+            --accent-primary: #10b981;
+            --accent-secondary: #3b82f6;
+            --accent-tertiary: #8b5cf6;
+            --accent-warning: #f59e0b;
+            --accent-danger: #ef4444;
+            --accent-pink: #ec4899;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border-color: rgba(75, 85, 99, 0.4);
+            --glass-bg: rgba(17, 24, 39, 0.8);
+            --success-glow: 0 0 40px rgba(16, 185, 129, 0.3);
+            --danger-glow: 0 0 40px rgba(239, 68, 68, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(139, 92, 246, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Neural Network Animation Background */
+        .neural-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .synapse-line {
+            position: absolute;
+            background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.3), transparent);
+            height: 1px;
+            animation: synapseFire 3s ease-in-out infinite;
+        }
+
+        @keyframes synapseFire {
+            0%, 100% { opacity: 0; transform: scaleX(0); }
+            50% { opacity: 1; transform: scaleX(1); }
+        }
+
+        .app-container {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+
         /* Header */
-        .header { text-align: center; padding: 40px 20px; }
-        .logo { font-size: 64px; margin-bottom: 16px; filter: drop-shadow(0 0 20px rgba(6, 182, 212, 0.5)); }
-        .title { font-size: 32px; font-weight: 800; letter-spacing: 4px; background: linear-gradient(135deg, #06b6d4, #22d3ee, #67e8f9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .subtitle { color: #94a3b8; margin-top: 8px; font-size: 14px; font-weight: 500; }
-        
-        /* Cards */
-        .card { background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 16px; padding: 20px; margin-bottom: 16px; backdrop-filter: blur(10px); }
-        .card-title { font-size: 11px; color: #06b6d4; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; font-weight: 600; }
-        
-        /* Form Elements */
-        .select { width: 100%; padding: 14px 16px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 12px; color: #fff; font-size: 16px; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%2306b6d4' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 24px; }
-        .select:focus { outline: none; border-color: #06b6d4; box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2); }
-        .select option { background: #1e293b; color: #fff; padding: 12px; }
-        
-        /* Buttons */
-        .btn { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-primary { background: linear-gradient(135deg, #0891b2, #06b6d4); color: #fff; box-shadow: 0 4px 20px rgba(6, 182, 212, 0.3); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(6, 182, 212, 0.4); }
-        .btn-primary:active { transform: translateY(0); }
-        .btn-secondary { background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); color: #06b6d4; }
-        .btn-danger { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; }
-        
-        /* Timer */
-        .timer-container { position: relative; padding: 40px 20px; }
-        .timer-ring-container { position: relative; width: 280px; height: 280px; margin: 0 auto; }
-        .timer-ring { width: 100%; height: 100%; transform: rotate(-90deg); }
-        .timer-ring-bg { fill: none; stroke: rgba(6, 182, 212, 0.1); stroke-width: 8; }
-        .timer-ring-progress { fill: none; stroke: url(#gradient); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
-        .timer-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
-        .timer-time { font-size: 64px; font-weight: 200; font-family: 'SF Mono', 'Fira Code', monospace; background: linear-gradient(135deg, #06b6d4, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -2px; }
-        .timer-label { color: #94a3b8; font-size: 14px; margin-top: 4px; text-transform: uppercase; letter-spacing: 2px; }
-        .timer-subject { color: #64748b; font-size: 12px; margin-top: 8px; }
-        .timer-controls { display: flex; gap: 16px; justify-content: center; margin-top: 40px; }
-        .timer-btn { width: 56px; height: 56px; border-radius: 50%; border: 2px solid rgba(6, 182, 212, 0.3); background: rgba(6, 182, 212, 0.1); color: #06b6d4; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-        .timer-btn:hover { background: rgba(6, 182, 212, 0.2); transform: scale(1.05); }
-        .timer-btn.primary { background: linear-gradient(135deg, #0891b2, #06b6d4); border: none; color: #fff; width: 72px; height: 72px; font-size: 24px; box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4); }
-        .timer-btn.primary:hover { box-shadow: 0 8px 30px rgba(6, 182, 212, 0.5); }
-        .timer-btn.danger { border-color: rgba(239, 68, 68, 0.3); color: #ef4444; background: rgba(239, 68, 68, 0.1); }
-        
-        /* Volume Control */
-        .audio-controls { position: absolute; top: 20px; right: 20px; }
-        .audio-btn { width: 44px; height: 44px; border-radius: 12px; border: 1px solid rgba(6, 182, 212, 0.2); background: rgba(30, 41, 59, 0.8); color: #06b6d4; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .volume-popup { position: absolute; top: 52px; right: 0; background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 12px; padding: 16px; min-width: 160px; backdrop-filter: blur(10px); }
-        .volume-slider { width: 100%; height: 6px; -webkit-appearance: none; background: rgba(6, 182, 212, 0.2); border-radius: 3px; outline: none; margin: 12px 0; }
-        .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: #06b6d4; border-radius: 50%; cursor: pointer; box-shadow: 0 2px 8px rgba(6, 182, 212, 0.4); }
-        .volume-label { font-size: 12px; color: #94a3b8; text-align: center; }
-        
-        /* Face Down Warning */
-        .face-down-warning { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(239, 68, 68, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
-        .face-down-warning h2 { font-size: 24px; margin-bottom: 16px; }
-        .face-down-warning p { color: rgba(255,255,255,0.8); }
-        
+        .header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .header-btn {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .header-btn:hover {
+            background: var(--bg-card);
+            border-color: var(--accent-primary);
+        }
+
+        /* Views */
+        .view {
+            display: none;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Dashboard */
+        .rank-card {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1));
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rank-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+
+        .rank-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            border: 3px solid var(--accent-primary);
+            box-shadow: var(--success-glow);
+            position: relative;
+        }
+
+        .avatar-badge {
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            width: 28px;
+            height: 28px;
+            background: var(--accent-warning);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            border: 2px solid var(--bg-primary);
+        }
+
+        .rank-info h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .rank-title {
+            font-size: 14px;
+            color: var(--accent-primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .rank-progress {
+            position: relative;
+            z-index: 1;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
         /* Stats Grid */
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .stat-card { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(6, 182, 212, 0.1); border-radius: 12px; padding: 16px; text-align: center; }
-        .stat-value { font-size: 28px; font-weight: 700; background: linear-gradient(135deg, #06b6d4, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .stat-label { font-size: 10px; color: #64748b; margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
-        
-        /* Exit Ticket */
-        .exit-ticket { padding: 20px; padding-bottom: 100px; }
-        .exit-ticket-header { text-align: center; margin-bottom: 24px; }
-        .exit-ticket-header h2 { font-size: 28px; margin-bottom: 8px; }
-        .exit-ticket-header p { color: #94a3b8; }
-        .exit-textarea { width: 100%; min-height: 200px; padding: 16px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 12px; color: #fff; font-size: 16px; resize: vertical; font-family: inherit; line-height: 1.6; }
-        .exit-textarea:focus { outline: none; border-color: #06b6d4; }
-        .exit-textarea::placeholder { color: #64748b; }
-        .keyword-hint { margin-top: 12px; padding: 12px; background: rgba(6, 182, 212, 0.1); border-radius: 8px; font-size: 12px; color: #94a3b8; }
-        .keyword-hint strong { color: #06b6d4; }
-        
-        /* Profile */
-        .profile-header { text-align: center; padding: 40px 20px; }
-        .avatar { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #0891b2, #06b6d4); display: flex; align-items: center; justify-content: center; font-size: 48px; margin: 0 auto 16px; box-shadow: 0 8px 32px rgba(6, 182, 212, 0.3); }
-        .rank-name { font-size: 28px; font-weight: 700; }
-        .rank-subtitle { color: #94a3b8; font-size: 14px; margin-top: 4px; }
-        .progress-bar { height: 8px; background: rgba(6, 182, 212, 0.2); border-radius: 4px; overflow: hidden; margin: 16px 0; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, #0891b2, #06b6d4); border-radius: 4px; transition: width 0.5s ease; }
-        .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: #64748b; }
-        
-        /* Badges */
-        .badges-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
-        .badge { padding: 8px 14px; background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 20px; font-size: 12px; color: #06b6d4; display: flex; align-items: center; gap: 6px; }
-        .badge.locked { opacity: 0.4; color: #64748b; border-color: rgba(100, 116, 139, 0.3); background: rgba(100, 116, 139, 0.1); }
-        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+
+        .stat-icon.green { background: rgba(16, 185, 129, 0.2); }
+        .stat-icon.blue { background: rgba(59, 130, 246, 0.2); }
+        .stat-icon.purple { background: rgba(139, 92, 246, 0.2); }
+        .stat-icon.orange { background: rgba(245, 158, 11, 0.2); }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Guilt-Free Vault */
+        .vault-card {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.15));
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .vault-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .vault-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .vault-balance {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-tertiary), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .vault-apps {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .vault-app {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .vault-app:hover {
+            border-color: var(--accent-tertiary);
+            transform: translateY(-2px);
+        }
+
+        .vault-app.locked {
+            opacity: 0.5;
+        }
+
+        .vault-app-cost {
+            font-size: 11px;
+            color: var(--accent-tertiary);
+            font-weight: 600;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .quick-action {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .quick-action:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-3px);
+            box-shadow: var(--success-glow);
+        }
+
+        .quick-action-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .quick-action-text {
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* Session Setup */
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .subject-selector {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .subject-breadcrumb {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .subject-breadcrumb span {
+            color: var(--accent-primary);
+        }
+
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .subject-item {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .subject-item:hover {
+            border-color: var(--accent-primary);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .subject-item.selected {
+            border-color: var(--accent-primary);
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        .subject-item.has-children::after {
+            content: '→';
+            margin-left: auto;
+            color: var(--text-muted);
+        }
+
+        /* Timer Profiles */
+        .timer-profiles {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .timer-profile {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px 18px;
+            min-width: 120px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .timer-profile:hover {
+            border-color: var(--accent-secondary);
+        }
+
+        .timer-profile.selected {
+            border-color: var(--accent-primary);
+            background: rgba(16, 185, 129, 0.15);
+        }
+
+        .timer-profile-name {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .timer-profile-time {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* Strictness Selector */
+        .strictness-selector {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .strictness-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        .strictness-option {
+            flex: 1;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .strictness-option:hover {
+            border-color: var(--accent-secondary);
+        }
+
+        .strictness-option.selected {
+            border-color: var(--accent-primary);
+            background: rgba(16, 185, 129, 0.15);
+        }
+
+        .strictness-option.surgeon {
+            border-color: var(--accent-danger);
+        }
+
+        .strictness-option.surgeon.selected {
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        .strictness-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .strictness-name {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Start Session Button */
+        .start-session-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border: none;
+            border-radius: 16px;
+            padding: 20px;
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .start-session-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(16, 185, 129, 0.4);
+        }
+
+        .start-session-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Timer View */
+        .timer-view {
+            height: calc(100vh - 180px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .timer-session-info {
+            margin-bottom: 30px;
+        }
+
+        .timer-subject {
+            font-size: 14px;
+            color: var(--accent-primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        .timer-mode {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .timer-circle {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            margin-bottom: 40px;
+        }
+
+        .timer-circle svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .timer-circle-bg {
+            fill: none;
+            stroke: var(--bg-tertiary);
+            stroke-width: 8;
+        }
+
+        .timer-circle-progress {
+            fill: none;
+            stroke: url(#timerGradient);
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 816;
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 1s linear;
+        }
+
+        .timer-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .timer-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 56px;
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+
+        .timer-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 8px;
+        }
+
+        /* Phone Status */
+        .phone-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+
+        .phone-status.face-down {
+            border-color: var(--accent-primary);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .phone-status.face-up {
+            border-color: var(--accent-danger);
+            background: rgba(239, 68, 68, 0.1);
+            animation: warningPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes warningPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        }
+
+        .phone-icon {
+            font-size: 24px;
+        }
+
+        .phone-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .timer-warning {
+            color: var(--accent-warning);
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        /* Timer Controls */
+        .timer-controls {
+            display: flex;
+            gap: 16px;
+        }
+
+        .timer-ctrl-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            background: var(--bg-card);
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .timer-ctrl-btn:hover {
+            border-color: var(--accent-primary);
+            transform: scale(1.1);
+        }
+
+        .timer-ctrl-btn.danger:hover {
+            border-color: var(--accent-danger);
+        }
+
+        /* Exit Ticket Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 24px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 16px;
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .modal-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .exit-ticket-form {
+            margin-bottom: 24px;
+        }
+
+        .exit-ticket-prompt {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .exit-ticket-prompt h4 {
+            font-size: 14px;
+            color: var(--accent-primary);
+            margin-bottom: 8px;
+        }
+
+        .exit-ticket-prompt p {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .exit-ticket-input {
+            width: 100%;
+            min-height: 150px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        .exit-ticket-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .exit-ticket-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .voice-input-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 14px;
+            background: var(--bg-tertiary);
+            border: 1px dashed var(--border-color);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .voice-input-btn:hover {
+            border-color: var(--accent-secondary);
+            color: var(--accent-secondary);
+        }
+
+        .voice-input-btn.recording {
+            border-color: var(--accent-danger);
+            color: var(--accent-danger);
+            animation: recordingPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes recordingPulse {
+            0%, 100% { background: var(--bg-tertiary); }
+            50% { background: rgba(239, 68, 68, 0.1); }
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .modal-btn.primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+        }
+
+        .modal-btn.secondary {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* AI Validation Feedback */
+        .validation-result {
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .validation-result.show {
+            display: block;
+        }
+
+        .validation-result.success {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid var(--accent-primary);
+        }
+
+        .validation-result.failure {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid var(--accent-danger);
+        }
+
+        .validation-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .validation-details {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .keywords-matched {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .keyword-tag {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-primary);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Clinical Chart View */
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-period-selector {
+            display: flex;
+            gap: 8px;
+        }
+
+        .period-btn {
+            padding: 8px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .period-btn.active {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: white;
+        }
+
         /* Heatmap */
-        .heatmap { display: grid; grid-template-columns: repeat(12, 1fr); gap: 3px; }
-        .heatmap-cell { aspect-ratio: 1; border-radius: 3px; background: rgba(6, 182, 212, 0.1); transition: all 0.2s; }
-        .heatmap-cell.l1 { background: rgba(6, 182, 212, 0.25); }
-        .heatmap-cell.l2 { background: rgba(6, 182, 212, 0.45); }
-        .heatmap-cell.l3 { background: rgba(6, 182, 212, 0.65); }
-        .heatmap-cell.l4 { background: #06b6d4; }
-        
-        /* Vault */
-        .vault-header { text-align: center; padding: 32px; background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(34, 211, 238, 0.05)); border-radius: 20px; margin-bottom: 24px; border: 1px solid rgba(6, 182, 212, 0.2); }
-        .vault-amount { font-size: 56px; font-weight: 700; background: linear-gradient(135deg, #06b6d4, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .vault-label { color: #94a3b8; font-size: 14px; margin-top: 4px; }
-        .vault-info { font-size: 12px; color: #64748b; margin-top: 12px; }
-        .app-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-        .app-item { text-align: center; padding: 20px 12px; background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(6, 182, 212, 0.1); border-radius: 16px; cursor: pointer; transition: all 0.2s; }
-        .app-item:hover { border-color: rgba(6, 182, 212, 0.4); transform: translateY(-2px); background: rgba(30, 41, 59, 0.8); }
-        .app-item.locked { opacity: 0.5; cursor: not-allowed; }
-        .app-item.locked:hover { transform: none; }
-        .app-icon { font-size: 36px; margin-bottom: 8px; }
-        .app-name { font-size: 12px; color: #e2e8f0; font-weight: 500; }
-        .app-cost { font-size: 11px; color: #06b6d4; margin-top: 4px; }
-        
-        /* Settings */
-        .settings-section { margin-bottom: 24px; }
-        .settings-section-title { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; padding-left: 4px; }
-        .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: rgba(30, 41, 59, 0.6); border-radius: 12px; margin-bottom: 8px; }
-        .settings-item-label { font-size: 15px; color: #e2e8f0; }
-        .settings-item-value { font-size: 14px; color: #06b6d4; }
-        
-        /* Recent Sessions */
-        .session-item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid rgba(100, 116, 139, 0.1); gap: 12px; }
-        .session-item:last-child { border-bottom: none; }
-        .session-icon { font-size: 24px; }
-        .session-info { flex: 1; }
-        .session-subject { font-size: 14px; font-weight: 500; }
-        .session-meta { font-size: 12px; color: #64748b; margin-top: 2px; }
-        .session-duration { font-size: 14px; color: #06b6d4; font-weight: 600; }
-        
-        /* Alerts */
-        .alert { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 14px 24px; border-radius: 12px; font-size: 14px; font-weight: 500; z-index: 100; animation: slideIn 0.3s ease; display: flex; align-items: center; gap: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
-        .alert.error { background: linear-gradient(135deg, #dc2626, #ef4444); color: #fff; }
-        .alert.success { background: linear-gradient(135deg, #059669, #10b981); color: #fff; }
-        .alert.warning { background: linear-gradient(135deg, #d97706, #f59e0b); color: #fff; }
-        
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-50%) translateY(-20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-        @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(6, 182, 212, 0.3); } 50% { box-shadow: 0 0 40px rgba(6, 182, 212, 0.5); } }
-        .pulsing { animation: pulse 2s ease-in-out infinite; }
-        .glowing { animation: glow 2s ease-in-out infinite; }
-        
+        .heatmap-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .heatmap-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(52, 1fr);
+            gap: 3px;
+        }
+
+        .heatmap-week {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .heatmap-day {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 2px;
+            background: var(--bg-tertiary);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .heatmap-day:hover {
+            transform: scale(1.5);
+        }
+
+        .heatmap-day.level-1 { background: rgba(16, 185, 129, 0.2); }
+        .heatmap-day.level-2 { background: rgba(16, 185, 129, 0.4); }
+        .heatmap-day.level-3 { background: rgba(16, 185, 129, 0.6); }
+        .heatmap-day.level-4 { background: var(--accent-primary); }
+
+        .heatmap-legend {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 12px;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .heatmap-legend-item {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        /* Pace Tracker */
+        .pace-tracker {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .pace-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .pace-item:last-child {
+            border-bottom: none;
+        }
+
+        .pace-subject {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pace-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        .pace-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .pace-stats {
+            text-align: right;
+        }
+
+        .pace-time {
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .pace-flag {
+            font-size: 11px;
+            color: var(--accent-warning);
+            margin-top: 2px;
+        }
+
+        /* Session Log */
+        .session-log {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .log-entry {
+            padding: 14px;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+
+        .log-entry:last-child {
+            margin-bottom: 0;
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .log-subject {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .log-time {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .log-notes {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            padding-left: 12px;
+            border-left: 2px solid var(--accent-primary);
+        }
+
+        .log-meta {
+            display: flex;
+            gap: 16px;
+            margin-top: 10px;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* Residency View */
+        .residency-header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(180deg, rgba(16, 185, 129, 0.1) 0%, transparent 100%);
+            border-radius: 24px;
+            margin-bottom: 24px;
+        }
+
+        .residency-avatar {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            border: 4px solid var(--accent-primary);
+            box-shadow: var(--success-glow);
+            position: relative;
+        }
+
+        .coat-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40%;
+            background: white;
+            border-radius: 0 0 26px 26px;
+            opacity: 0.9;
+        }
+
+        .rank-badge-large {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            padding: 6px 12px;
+            background: linear-gradient(135deg, var(--accent-warning), #f97316);
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .residency-rank {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .residency-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Rank Progression */
+        .rank-progression {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .rank-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .rank-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            opacity: 0.5;
+            transition: all 0.3s ease;
+        }
+
+        .rank-item.unlocked {
+            opacity: 1;
+        }
+
+        .rank-item.current {
+            border: 1px solid var(--accent-primary);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .rank-item-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .rank-item-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .rank-item-info p {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .rank-item-check {
+            margin-left: auto;
+            color: var(--accent-primary);
+            font-size: 18px;
+        }
+
+        /* Badges */
+        .badges-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .badges-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .badge-item {
+            text-align: center;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            opacity: 0.4;
+            transition: all 0.3s ease;
+        }
+
+        .badge-item.earned {
+            opacity: 1;
+        }
+
+        .badge-icon {
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+
+        .badge-name {
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+
+        /* Leaderboard */
+        .leaderboard {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .leaderboard-entry {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            margin-bottom: 8px;
+        }
+
+        .leaderboard-entry:last-child {
+            margin-bottom: 0;
+        }
+
+        .leaderboard-entry.you {
+            border: 1px solid var(--accent-primary);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .leaderboard-rank {
+            width: 30px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .leaderboard-rank.gold { color: #fbbf24; }
+        .leaderboard-rank.silver { color: #9ca3af; }
+        .leaderboard-rank.bronze { color: #cd7f32; }
+
+        .leaderboard-avatar {
+            width: 36px;
+            height: 36px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .leaderboard-info {
+            flex: 1;
+        }
+
+        .leaderboard-name {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .leaderboard-school {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .leaderboard-hours {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+
+        /* Settings View */
+        .settings-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .settings-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .setting-label {
+            font-size: 14px;
+        }
+
+        .setting-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Toggle Switch */
+        .toggle {
+            width: 52px;
+            height: 28px;
+            background: var(--bg-tertiary);
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .toggle.active {
+            background: var(--accent-primary);
+        }
+
+        .toggle::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle.active::after {
+            transform: translateX(24px);
+        }
+
+        /* Audio Environment Selector */
+        .audio-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .audio-option {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .audio-option:hover {
+            border-color: var(--accent-secondary);
+        }
+
+        .audio-option.selected {
+            border-color: var(--accent-primary);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .audio-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .audio-name {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Export Button */
+        .export-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--accent-secondary), var(--accent-tertiary));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border-color);
+            padding: 12px 20px;
+            padding-bottom: max(12px, env(safe-area-inset-bottom));
+            z-index: 100;
+        }
+
+        .nav-items {
+            display: flex;
+            justify-content: space-around;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-muted);
+        }
+
+        .nav-item:hover {
+            color: var(--text-secondary);
+        }
+
+        .nav-item.active {
+            color: var(--accent-primary);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .nav-icon {
+            font-size: 22px;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* Notification Toast */
+        .toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 300;
+            opacity: 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success { border-color: var(--accent-primary); }
+        .toast.error { border-color: var(--accent-danger); }
+        .toast.warning { border-color: var(--accent-warning); }
+
+        .toast-icon {
+            font-size: 20px;
+        }
+
+        .toast-message {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Session Failed Screen */
+        .session-failed {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .failed-icon {
+            width: 100px;
+            height: 100px;
+            background: rgba(239, 68, 68, 0.2);
+            border: 3px solid var(--accent-danger);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            margin: 0 auto 24px;
+            animation: failedPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes failedPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            50% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+        }
+
+        .failed-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent-danger);
+            margin-bottom: 12px;
+        }
+
+        .failed-message {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        /* Copy Button */
+        .copy-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--accent-primary);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 20px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Responsive */
+        @media (max-width: 380px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .timer-time {
+                font-size: 44px;
+            }
+            
+            .timer-circle {
+                width: 240px;
+                height: 240px;
+            }
+        }
+
         /* Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(6, 182, 212, 0.3); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(6, 182, 212, 0.5); }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--text-muted);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
     </style>
 </head>
 <body>
-    <div id="root"></div>
+    <!-- Neural Network Background -->
+    <div class="neural-bg" id="neuralBg"></div>
+
+    <!-- Toast Notifications -->
+    <div class="toast" id="toast">
+        <span class="toast-icon">✓</span>
+        <span class="toast-message">Success!</span>
+    </div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">🧠</div>
+                    <span class="logo-text">Synapse</span>
+                </div>
+                <div class="header-actions">
+                    <button class="header-btn" onclick="showView('settings')">⚙️</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard View -->
+        <div class="view active" id="dashboardView">
+            <!-- Rank Card -->
+            <div class="rank-card">
+                <div class="rank-header">
+                    <div class="avatar">
+                        👨‍⚕️
+                        <div class="avatar-badge">🔥</div>
+                    </div>
+                    <div class="rank-info">
+                        <h2 id="userName">Dr. Scholar</h2>
+                        <div class="rank-title" id="userRank">Clinical Clerk</div>
+                    </div>
+                </div>
+                <div class="rank-progress">
+                    <div class="progress-header">
+                        <span>Progress to Intern</span>
+                        <span id="progressPercent">65%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 65%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon green">🔥</div>
+                    <div class="stat-value" id="currentStreak">12</div>
+                    <div class="stat-label">Day Streak</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue">⏱️</div>
+                    <div class="stat-value" id="totalHours">47.5h</div>
+                    <div class="stat-label">Total Focus</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">📊</div>
+                    <div class="stat-value" id="sessionsCompleted">89</div>
+                    <div class="stat-label">Sessions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">✅</div>
+                    <div class="stat-value" id="successRate">94%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+            </div>
+
+            <!-- Guilt-Free Vault -->
+            <div class="vault-card">
+                <div class="vault-header">
+                    <div class="vault-title">
+                        <span>🎮</span>
+                        <span>Guilt-Free Vault</span>
+                    </div>
+                    <div class="vault-balance" id="vaultBalance">45 min</div>
+                </div>
+                <div class="vault-apps">
+                    <div class="vault-app" onclick="redeemVault('instagram')">
+                        <span>📸</span>
+                        <div>
+                            <div>Instagram</div>
+                            <div class="vault-app-cost">15 min</div>
+                        </div>
+                    </div>
+                    <div class="vault-app" onclick="redeemVault('netflix')">
+                        <span>🎬</span>
+                        <div>
+                            <div>Netflix</div>
+                            <div class="vault-app-cost">30 min</div>
+                        </div>
+                    </div>
+                    <div class="vault-app" onclick="redeemVault('youtube')">
+                        <span>▶️</span>
+                        <div>
+                            <div>YouTube</div>
+                            <div class="vault-app-cost">20 min</div>
+                        </div>
+                    </div>
+                    <div class="vault-app locked">
+                        <span>🎮</span>
+                        <div>
+                            <div>Gaming</div>
+                            <div class="vault-app-cost">60 min</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="section-title">
+                <span>⚡</span>
+                Quick Start
+            </div>
+            <div class="quick-actions">
+                <div class="quick-action" onclick="quickStart('anki')">
+                    <div class="quick-action-icon">🃏</div>
+                    <div class="quick-action-text">Anki Grind<br><small style="color: var(--text-muted)">10/2 mode</small></div>
+                </div>
+                <div class="quick-action" onclick="quickStart('blocks')">
+                    <div class="quick-action-icon">📝</div>
+                    <div class="quick-action-text">Block Exam<br><small style="color: var(--text-muted)">60/10 mode</small></div>
+                </div>
+            </div>
+
+            <!-- Subject Selector -->
+            <div class="section-title">
+                <span>📚</span>
+                Select Subject
+            </div>
+            <div class="subject-selector">
+                <div class="subject-breadcrumb" id="subjectBreadcrumb">
+                    Medical Curriculum > <span id="currentPath">Select a system</span>
+                </div>
+                <div class="subject-grid" id="subjectGrid">
+                    <!-- Subjects will be dynamically loaded -->
+                </div>
+            </div>
+
+            <!-- Timer Profiles -->
+            <div class="section-title">
+                <span>⏰</span>
+                Timer Profile
+            </div>
+            <div class="timer-profiles" id="timerProfiles">
+                <div class="timer-profile" data-work="25" data-break="5" onclick="selectTimerProfile(this)">
+                    <div class="timer-profile-name">Standard</div>
+                    <div class="timer-profile-time">25/5 min</div>
+                </div>
+                <div class="timer-profile selected" data-work="50" data-break="10" onclick="selectTimerProfile(this)">
+                    <div class="timer-profile-name">Deep Work</div>
+                    <div class="timer-profile-time">50/10 min</div>
+                </div>
+                <div class="timer-profile" data-work="60" data-break="10" onclick="selectTimerProfile(this)">
+                    <div class="timer-profile-name">Block Exam</div>
+                    <div class="timer-profile-time">60/10 min</div>
+                </div>
+                <div class="timer-profile" data-work="10" data-break="2" onclick="selectTimerProfile(this)">
+                    <div class="timer-profile-name">Anki Grind</div>
+                    <div class="timer-profile-time">10/2 min</div>
+                </div>
+                <div class="timer-profile" data-work="90" data-break="15" onclick="selectTimerProfile(this)">
+                    <div class="timer-profile-name">Marathon</div>
+                    <div class="timer-profile-time">90/15 min</div>
+                </div>
+            </div>
+
+            <!-- Strictness Selector -->
+            <div class="section-title">
+                <span>🎚️</span>
+                Strictness Level
+            </div>
+            <div class="strictness-selector">
+                <div class="strictness-options">
+                    <div class="strictness-option" data-level="intern" onclick="selectStrictness(this)">
+                        <div class="strictness-icon">🩺</div>
+                        <div class="strictness-name">Intern</div>
+                    </div>
+                    <div class="strictness-option selected" data-level="chief" onclick="selectStrictness(this)">
+                        <div class="strictness-icon">👨‍⚕️</div>
+                        <div class="strictness-name">Chief Resident</div>
+                    </div>
+                    <div class="strictness-option surgeon" data-level="surgeon" onclick="selectStrictness(this)">
+                        <div class="strictness-icon">🔪</div>
+                        <div class="strictness-name">Surgeon</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Start Button -->
+            <button class="start-session-btn" onclick="startSession()">
+                <span>▶️</span>
+                Start Deep Work Session
+            </button>
+        </div>
+
+        <!-- Timer View -->
+        <div class="view" id="timerView">
+            <div class="timer-view">
+                <div class="timer-session-info">
+                    <div class="timer-subject" id="timerSubject">PHARMACOLOGY - AUTONOMICS</div>
+                    <div class="timer-mode" id="timerMode">Deep Work Mode • Chief Resident</div>
+                </div>
+
+                <div class="timer-circle">
+                    <svg viewBox="0 0 280 280">
+                        <defs>
+                            <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#10b981"/>
+                                <stop offset="100%" style="stop-color:#3b82f6"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="timer-circle-bg" cx="140" cy="140" r="130"/>
+                        <circle class="timer-circle-progress" id="timerProgress" cx="140" cy="140" r="130"/>
+                    </svg>
+                    <div class="timer-display">
+                        <div class="timer-time" id="timerDisplay">50:00</div>
+                        <div class="timer-label" id="timerPhase">Focus Time</div>
+                    </div>
+                </div>
+
+                <div class="phone-status face-down" id="phoneStatus">
+                    <span class="phone-icon">📱</span>
+                    <div>
+                        <div class="phone-text" id="phoneStatusText">Phone is face down ✓</div>
+                        <div class="timer-warning" id="phoneWarning" style="display: none;">Flip phone back down!</div>
+                    </div>
+                </div>
+
+                <div class="timer-controls">
+                    <button class="timer-ctrl-btn" onclick="pauseTimer()" id="pauseBtn">⏸️</button>
+                    <button class="timer-ctrl-btn danger" onclick="cancelSession()">⏹️</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exit Ticket Modal -->
+        <div class="modal-overlay" id="exitTicketModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <div class="modal-icon">📋</div>
+                    <h2 class="modal-title">Exit Ticket</h2>
+                    <p class="modal-subtitle">Prove your work to complete the session</p>
+                </div>
+
+                <div class="exit-ticket-form">
+                    <div class="exit-ticket-prompt">
+                        <h4>📚 Session Topic:</h4>
+                        <p id="exitTicketTopic">Pharmacology - Autonomics</p>
+                    </div>
+
+                    <div class="validation-result" id="validationResult">
+                        <div class="validation-header">
+                            <span class="validation-icon"></span>
+                            <span class="validation-text"></span>
+                        </div>
+                        <div class="validation-details"></div>
+                        <div class="keywords-matched" id="keywordsMatched"></div>
+                    </div>
+
+                    <textarea 
+                        class="exit-ticket-input" 
+                        id="exitTicketInput"
+                        placeholder="List 3-5 key concepts you learned. For example:&#10;• Cholinergic agonists: Bethanechol, Pilocarpine&#10;• Muscarinic vs Nicotinic receptors&#10;• Parasympathetic nervous system effects"
+                    ></textarea>
+
+                    <button class="voice-input-btn" id="voiceInputBtn" onclick="toggleVoiceInput()">
+                        <span>🎤</span>
+                        <span>Tap to dictate</span>
+                    </button>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="modal-btn secondary" onclick="skipExitTicket()">Skip (No Streak)</button>
+                    <button class="modal-btn primary" onclick="submitExitTicket()">Verify & Complete</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Session Failed Modal -->
+        <div class="modal-overlay" id="sessionFailedModal">
+            <div class="modal">
+                <div class="session-failed">
+                    <div class="failed-icon">💔</div>
+                    <h2 class="failed-title">Session Flatlined</h2>
+                    <p class="failed-message" id="failedMessage">
+                        Your phone was face-up for too long. The session has been discarded and your streak has been frozen.
+                    </p>
+                    <button class="modal-btn primary" onclick="closeFailedModal()" style="width: 100%;">
+                        Try Again
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart View -->
+        <div class="view" id="chartView">
+            <div class="chart-header">
+                <div class="section-title" style="margin-bottom: 0;">
+                    <span>📊</span>
+                    Clinical Chart
+                </div>
+                <div class="chart-period-selector">
+                    <button class="period-btn active" onclick="setPeriod('week')">Week</button>
+                    <button class="period-btn" onclick="setPeriod('month')">Month</button>
+                    <button class="period-btn" onclick="setPeriod('year')">Year</button>
+                </div>
+            </div>
+
+            <!-- Heatmap -->
+            <div class="heatmap-container">
+                <div class="heatmap-title">
+                    <span>📅</span>
+                    Focus Activity
+                </div>
+                <div class="heatmap-grid" id="heatmapGrid">
+                    <!-- Generated by JS -->
+                </div>
+                <div class="heatmap-legend">
+                    <span>Less</span>
+                    <div class="heatmap-legend-item" style="background: var(--bg-tertiary)"></div>
+                    <div class="heatmap-legend-item" style="background: rgba(16, 185, 129, 0.2)"></div>
+                    <div class="heatmap-legend-item" style="background: rgba(16, 185, 129, 0.4)"></div>
+                    <div class="heatmap-legend-item" style="background: rgba(16, 185, 129, 0.6)"></div>
+                    <div class="heatmap-legend-item" style="background: var(--accent-primary)"></div>
+                    <span>More</span>
+                </div>
+            </div>
+
+            <!-- Pace Tracker -->
+            <div class="pace-tracker">
+                <div class="section-title" style="margin-bottom: 12px;">
+                    <span>⚡</span>
+                    Pace Analysis
+                </div>
+                <div id="paceList">
+                    <!-- Generated by JS -->
+                </div>
+            </div>
+
+            <!-- Session Log -->
+            <div class="session-log">
+                <div class="section-title" style="margin-bottom: 12px;">
+                    <span>📝</span>
+                    Recent Sessions
+                </div>
+                <div id="sessionLogList">
+                    <!-- Generated by JS -->
+                </div>
+            </div>
+
+            <!-- Export Button -->
+            <button class="export-btn" onclick="exportReport()" style="margin-top: 20px;">
+                <span>📄</span>
+                Export Ward Report (PDF)
+            </button>
+        </div>
+
+        <!-- Residency View -->
+        <div class="view" id="residencyView">
+            <div class="residency-header">
+                <div class="residency-avatar">
+                    👨‍⚕️
+                    <div class="coat-overlay"></div>
+                    <div class="rank-badge-large">LVL 4</div>
+                </div>
+                <h1 class="residency-rank" id="residencyRankTitle">Clinical Clerk</h1>
+                <p class="residency-subtitle">185 hours until Intern</p>
+            </div>
+
+            <!-- Rank Progression -->
+            <div class="rank-progression">
+                <div class="section-title" style="margin-bottom: 12px;">
+                    <span>🏆</span>
+                    Rank Progression
+                </div>
+                <div class="rank-list">
+                    <div class="rank-item unlocked">
+                        <div class="rank-item-icon">📚</div>
+                        <div class="rank-item-info">
+                            <h4>Pre-med</h4>
+                            <p>0 hours</p>
+                        </div>
+                        <div class="rank-item-check">✓</div>
+                    </div>
+                    <div class="rank-item unlocked">
+                        <div class="rank-item-icon">🔬</div>
+                        <div class="rank-item-info">
+                            <h4>M1</h4>
+                            <p>10 hours</p>
+                        </div>
+                        <div class="rank-item-check">✓</div>
+                    </div>
+                    <div class="rank-item unlocked">
+                        <div class="rank-item-icon">🧬</div>
+                        <div class="rank-item-info">
+                            <h4>M2</h4>
+                            <p>25 hours</p>
+                        </div>
+                        <div class="rank-item-check">✓</div>
+                    </div>
+                    <div class="rank-item unlocked current">
+                        <div class="rank-item-icon">🩺</div>
+                        <div class="rank-item-info">
+                            <h4>Clinical Clerk</h4>
+                            <p>50 hours</p>
+                        </div>
+                        <div class="rank-item-check">✓</div>
+                    </div>
+                    <div class="rank-item">
+                        <div class="rank-item-icon">👨‍⚕️</div>
+                        <div class="rank-item-info">
+                            <h4>Intern</h4>
+                            <p>100 hours</p>
+                        </div>
+                    </div>
+                    <div class="rank-item">
+                        <div class="rank-item-icon">🏥</div>
+                        <div class="rank-item-info">
+                            <h4>Resident</h4>
+                            <p>250 hours</p>
+                        </div>
+                    </div>
+                    <div class="rank-item">
+                        <div class="rank-item-icon">🎓</div>
+                        <div class="rank-item-info">
+                            <h4>Fellow</h4>
+                            <p>500 hours</p>
+                        </div>
+                    </div>
+                    <div class="rank-item">
+                        <div class="rank-item-icon">⭐</div>
+                        <div class="rank-item-info">
+                            <h4>Attending</h4>
+                            <p>1000 hours</p>
+                        </div>
+                    </div>
+                    <div class="rank-item">
+                        <div class="rank-item-icon">👑</div>
+                        <div class="rank-item-info">
+                            <h4>Department Chair</h4>
+                            <p>2500 hours</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Badges -->
+            <div class="badges-section">
+                <div class="section-title" style="margin-bottom: 12px;">
+                    <span>🏅</span>
+                    Specialty Badges
+                </div>
+                <div class="badges-grid">
+                    <div class="badge-item earned">
+                        <div class="badge-icon">🫀</div>
+                        <div class="badge-name">Cardiologist</div>
+                    </div>
+                    <div class="badge-item earned">
+                        <div class="badge-icon">🧠</div>
+                        <div class="badge-name">Neurologist</div>
+                    </div>
+                    <div class="badge-item">
+                        <div class="badge-icon">🫁</div>
+                        <div class="badge-name">Pulmonologist</div>
+                    </div>
+                    <div class="badge-item">
+                        <div class="badge-icon">🦴</div>
+                        <div class="badge-name">Orthopedist</div>
+                    </div>
+                    <div class="badge-item">
+                        <div class="badge-icon">🧬</div>
+                        <div class="badge-name">Geneticist</div>
+                    </div>
+                    <div class="badge-item earned">
+                        <div class="badge-icon">💊</div>
+                        <div class="badge-name">Pharmacist</div>
+                    </div>
+                    <div class="badge-item">
+                        <div class="badge-icon">🩸</div>
+                        <div class="badge-name">Hematologist</div>
+                    </div>
+                    <div class="badge-item">
+                        <div class="badge-icon">👁️</div>
+                        <div class="badge-name">Ophthalmologist</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leaderboard -->
+            <div class="leaderboard">
+                <div class="section-title" style="margin-bottom: 12px;">
+                    <span>🏆</span>
+                    Gunner Leaderboard (This Week)
+                </div>
+                <div id="leaderboardList">
+                    <div class="leaderboard-entry">
+                        <div class="leaderboard-rank gold">1</div>
+                        <div class="leaderboard-avatar">🧑‍⚕️</div>
+                        <div class="leaderboard-info">
+                            <div class="leaderboard-name">Anonymous Gunner</div>
+                            <div class="leaderboard-school">Johns Hopkins M2</div>
+                        </div>
+                        <div class="leaderboard-hours">52.5h</div>
+                    </div>
+                    <div class="leaderboard-entry">
+                        <div class="leaderboard-rank silver">2</div>
+                        <div class="leaderboard-avatar">👩‍⚕️</div>
+                        <div class="leaderboard-info">
+                            <div class="leaderboard-name">StudyMachine</div>
+                            <div class="leaderboard-school">Stanford M1</div>
+                        </div>
+                        <div class="leaderboard-hours">48.2h</div>
+                    </div>
+                    <div class="leaderboard-entry you">
+                        <div class="leaderboard-rank">15</div>
+                        <div class="leaderboard-avatar">👨‍⚕️</div>
+                        <div class="leaderboard-info">
+                            <div class="leaderboard-name">You</div>
+                            <div class="leaderboard-school">Your School</div>
+                        </div>
+                        <div class="leaderboard-hours">12.5h</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings View -->
+        <div class="view" id="settingsView">
+            <div class="section-title">
+                <span>⚙️</span>
+                Settings
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-title">
+                    <span>🎵</span>
+                    Audio Environment
+                </div>
+                <div class="audio-selector">
+                    <div class="audio-option selected" data-audio="none" onclick="selectAudio(this)">
+                        <div class="audio-icon">🔇</div>
+                        <div class="audio-name">Silent</div>
+                    </div>
+                    <div class="audio-option" data-audio="library" onclick="selectAudio(this)">
+                        <div class="audio-icon">📚</div>
+                        <div class="audio-name">Library</div>
+                    </div>
+                    <div class="audio-option" data-audio="brown" onclick="selectAudio(this)">
+                        <div class="audio-icon">🌊</div>
+                        <div class="audio-name">Brown Noise</div>
+                    </div>
+                    <div class="audio-option" data-audio="rain" onclick="selectAudio(this)">
+                        <div class="audio-icon">🌧️</div>
+                        <div class="audio-name">Hospital Rain</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-title">
+                    <span>📱</span>
+                    Session Behavior
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <div class="setting-label">Surgical Scrub Mode</div>
+                        <div class="setting-desc">Require phone face-down</div>
+                    </div>
+                    <div class="toggle active" id="scrubModeToggle" onclick="toggleSetting(this)"></div>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <div class="setting-label">Exit Ticket Required</div>
+                        <div class="setting-desc">Must verify learning to complete</div>
+                    </div>
+                    <div class="toggle active" id="exitTicketToggle" onclick="toggleSetting(this)"></div>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <div class="setting-label">Emergency Breaks</div>
+                        <div class="setting-desc">Allow 1 break per 4 hours</div>
+                    </div>
+                    <div class="toggle" id="emergencyBreakToggle" onclick="toggleSetting(this)"></div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-title">
+                    <span>🔗</span>
+                    Integrations
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <div class="setting-label">Anki Detection</div>
+                        <div class="setting-desc">Auto-detect Anki sessions</div>
+                    </div>
+                    <div class="toggle" id="ankiToggle" onclick="toggleSetting(this)"></div>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <div class="setting-label">Notion Sync</div>
+                        <div class="setting-desc">Push exit tickets to Notion</div>
+                    </div>
+                    <div class="toggle" id="notionToggle" onclick="toggleSetting(this)"></div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-title">
+                    <span>⚠️</span>
+                    Surgeon Mode Options
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <div class="setting-label">Charity Penalty</div>
+                        <div class="setting-desc">Donate $1 on failed session</div>
+                    </div>
+                    <div class="toggle" id="charityToggle" onclick="toggleSetting(this)"></div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-title">
+                    <span>📊</span>
+                    Data
+                </div>
+                <button class="export-btn" onclick="exportAllData()">
+                    <span>💾</span>
+                    Export All Data
+                </button>
+                <button class="export-btn" onclick="resetAllData()" style="margin-top: 12px; background: linear-gradient(135deg, #ef4444, #dc2626);">
+                    <span>🗑️</span>
+                    Reset All Data
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <div class="nav-items">
+            <div class="nav-item active" onclick="showView('dashboard')">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Dashboard</span>
+            </div>
+            <div class="nav-item" onclick="showView('chart')">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Chart</span>
+            </div>
+            <div class="nav-item" onclick="showView('residency')">
+                <span class="nav-icon">🏆</span>
+                <span class="nav-label">Residency</span>
+            </div>
+            <div class="nav-item" onclick="showView('settings')">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-label">Settings</span>
+            </div>
+        </div>
+    </nav>
+
     <script>
-        // ============ DATA ============
-        const SUBJECTS = [
-            { id: 'cardio', name: 'Cardiology', icon: '❤️', keywords: ['heart', 'cardiac', 'coronary', 'myocardial', 'arrhythmia', 'murmur', 'valve', 'atrial', 'ventricular', 'ecg', 'ekg'] },
-            { id: 'neuro', name: 'Neurology', icon: '🧠', keywords: ['brain', 'neuron', 'synapse', 'cortex', 'cerebral', 'spinal', 'nerve', 'axon', 'dendrite', 'glia'] },
-            { id: 'renal', name: 'Renal', icon: '🫘', keywords: ['kidney', 'nephron', 'glomerular', 'filtration', 'tubule', 'urine', 'creatinine', 'bun'] },
-            { id: 'gi', name: 'GI / Hepatology', icon: '🫁', keywords: ['stomach', 'intestine', 'liver', 'pancreas', 'digestion', 'enzyme', 'bile', 'colon'] },
-            { id: 'pulm', name: 'Pulmonology', icon: '🌬️', keywords: ['lung', 'respiratory', 'bronchi', 'alveoli', 'oxygen', 'ventilation', 'copd', 'asthma'] },
-            { id: 'pharm', name: 'Pharmacology', icon: '💊', keywords: ['drug', 'receptor', 'agonist', 'antagonist', 'dose', 'pharmacokinetics', 'metabolism'] },
-            { id: 'micro', name: 'Microbiology', icon: '🦠', keywords: ['bacteria', 'virus', 'infection', 'antibiotic', 'gram', 'culture', 'pathogen'] },
-            { id: 'biochem', name: 'Biochemistry', icon: '🧬', keywords: ['enzyme', 'protein', 'metabolism', 'atp', 'glycolysis', 'krebs', 'amino'] },
-            { id: 'immuno', name: 'Immunology', icon: '🛡️', keywords: ['antibody', 'antigen', 'lymphocyte', 'cytokine', 'tcell', 'bcell', 'complement'] },
-            { id: 'anatomy', name: 'Anatomy', icon: '🦴', keywords: ['bone', 'muscle', 'organ', 'tissue', 'nerve', 'artery', 'vein'] },
-            { id: 'path', name: 'Pathology', icon: '🔬', keywords: ['disease', 'lesion', 'neoplasm', 'inflammation', 'necrosis', 'apoptosis'] },
-            { id: 'anki', name: 'Anki Review', icon: '📚', keywords: ['review', 'card', 'recall', 'spaced', 'repetition', 'memorize'] }
-        ];
-
-        const TIMER_PRESETS = [
-            { id: 'standard', name: 'Standard', work: 25, break: 5, description: 'Classic Pomodoro' },
-            { id: 'block', name: 'Block Exam', work: 60, break: 10, description: 'Extended focus' },
-            { id: 'anki', name: 'Anki Grind', work: 10, break: 2, description: 'Rapid fire' },
-            { id: 'deep', name: 'Deep Work', work: 50, break: 10, description: 'Cal Newport style' },
-            { id: 'marathon', name: 'Marathon', work: 90, break: 20, description: 'Ultra focus' }
-        ];
-
-        const RANKS = [
-            { name: 'Pre-med', minHours: 0, icon: '📖' },
-            { name: 'M1', minHours: 10, icon: '🩺' },
-            { name: 'M2', minHours: 25, icon: '📋' },
-            { name: 'Clinical Clerk', minHours: 50, icon: '👨‍⚕️' },
-            { name: 'Intern', minHours: 100, icon: '💉' },
-            { name: 'Resident', minHours: 200, icon: '🏥' },
-            { name: 'Fellow', minHours: 350, icon: '🎓' },
-            { name: 'Attending', minHours: 500, icon: '⭐' },
-            { name: 'Department Chair', minHours: 1000, icon: '👑' }
-        ];
-
-        const BADGES = [
-            { id: 'first', name: 'First Steps', icon: '🎯', desc: 'Complete first session', check: s => s.totalSessions >= 1 },
-            { id: 'week', name: 'Week Warrior', icon: '🔥', desc: '7 day streak', check: s => s.currentStreak >= 7 },
-            { id: 'century', name: 'Centurion', icon: '💯', desc: '100 sessions', check: s => s.totalSessions >= 100 },
-            { id: 'night', name: 'Night Owl', icon: '🦉', desc: 'Study past midnight', check: s => s.nightSessions >= 1 },
-            { id: 'neuro', name: 'The Neurologist', icon: '🧠', desc: '10 hrs Neuro', check: s => (s.subjectHours?.neuro || 0) >= 10 },
-            { id: 'cardio', name: 'The Cardiologist', icon: '❤️', desc: '10 hrs Cardio', check: s => (s.subjectHours?.cardio || 0) >= 10 },
-            { id: 'perfect', name: 'Perfect Recall', icon: '✨', desc: '10 perfect exits', check: s => s.perfectExits >= 10 },
-            { id: 'marathon', name: 'Marathon Runner', icon: '🏃', desc: 'Complete 90min session', check: s => s.marathonCompleted }
-        ];
-
-        const VAULT_APPS = [
-            { id: 'instagram', name: 'Instagram', icon: '📷', cost: 15 },
-            { id: 'netflix', name: 'Netflix', icon: '🎬', cost: 30 },
-            { id: 'youtube', name: 'YouTube', icon: '▶️', cost: 20 },
-            { id: 'twitter', name: 'Twitter/X', icon: '🐦', cost: 10 },
-            { id: 'tiktok', name: 'TikTok', icon: '🎵', cost: 15 },
-            { id: 'games', name: 'Games', icon: '🎮', cost: 25 }
-        ];
-
-        const AUDIO_ENVIRONMENTS = [
-            { id: 'silent', name: 'Silent', icon: '🔇' },
-            { id: 'brown', name: 'Brown Noise', icon: '🟤' },
-            { id: 'rain', name: 'Rain', icon: '🌧️' },
-            { id: 'library', name: 'Library', icon: '📚' },
-            { id: 'coffee', name: 'Coffee Shop', icon: '☕' }
-        ];
-
-        const STRICTNESS_LEVELS = [
-            { id: 'intern', name: 'Intern', desc: 'Can pause, exit ticket optional' },
-            { id: 'chief', name: 'Chief Resident', desc: 'No pause, exit required' },
-            { id: 'surgeon', name: 'Surgeon', desc: 'Phone must be face down' }
-        ];
-
-        // ============ STATE ============
-        let state = {
-            screen: 'home',
-            selectedSubject: 'cardio',
-            selectedPreset: 'standard',
-            timerState: 'idle', // idle, running, paused, exitTicket, break
-            timeRemaining: 1500,
-            totalTime: 1500,
-            isBreak: false,
-            exitTicketText: '',
-            audioEnvironment: 'silent',
-            volume: 0.5,
-            showVolume: false,
-            strictnessLevel: 'intern',
-            stats: loadStats(),
-            sessions: loadSessions(),
-            alert: null,
-            faceDownWarning: false
+        // ============ DATA STRUCTURES ============
+        const MEDICAL_CURRICULUM = {
+            'Cardiovascular': {
+                'Anatomy': ['Heart Chambers', 'Coronary Arteries', 'Great Vessels', 'Cardiac Valves'],
+                'Physiology': ['Cardiac Cycle', 'ECG', 'Blood Pressure', 'Hemodynamics'],
+                'Pathology': ['Atherosclerosis', 'MI', 'Heart Failure', 'Valvular Disease', 'Arrhythmias'],
+                'Pharmacology': ['Antihypertensives', 'Antiarrhythmics', 'Anticoagulants', 'Statins']
+            },
+            'Respiratory': {
+                'Anatomy': ['Lungs', 'Bronchial Tree', 'Pleura', 'Diaphragm'],
+                'Physiology': ['Ventilation', 'Gas Exchange', 'Oxygen Transport', 'Pulmonary Function'],
+                'Pathology': ['COPD', 'Asthma', 'Pneumonia', 'Lung Cancer', 'PE'],
+                'Pharmacology': ['Bronchodilators', 'Corticosteroids', 'Antihistamines']
+            },
+            'Renal': {
+                'Anatomy': ['Kidney', 'Nephron', 'Ureter', 'Bladder'],
+                'Physiology': ['GFR', 'Tubular Function', 'Acid-Base', 'Fluid Balance'],
+                'Pathology': ['AKI', 'CKD', 'Glomerulonephritis', 'Nephrotic Syndrome'],
+                'Pharmacology': ['Diuretics', 'ACE Inhibitors', 'ARBs']
+            },
+            'Neurology': {
+                'Anatomy': ['Brain Regions', 'Spinal Cord', 'Cranial Nerves', 'ANS'],
+                'Physiology': ['Action Potential', 'Neurotransmitters', 'Reflexes', 'Sleep'],
+                'Pathology': ['Stroke', 'Epilepsy', 'MS', 'Parkinson', 'Alzheimer'],
+                'Pharmacology': ['Anesthetics', 'Antiepileptics', 'Antidepressants', 'Opioids']
+            },
+            'Pharmacology': {
+                'Autonomics': ['Cholinergic Agonists', 'Cholinergic Antagonists', 'Adrenergic Agonists', 'Adrenergic Antagonists'],
+                'Antimicrobials': ['Penicillins', 'Cephalosporins', 'Fluoroquinolones', 'Aminoglycosides'],
+                'CNS': ['Antidepressants', 'Antipsychotics', 'Anxiolytics', 'Sedatives'],
+                'Cardiovascular': ['Beta Blockers', 'Calcium Channel Blockers', 'ACE Inhibitors', 'Diuretics']
+            },
+            'GI': {
+                'Anatomy': ['Esophagus', 'Stomach', 'Small Intestine', 'Large Intestine', 'Liver', 'Pancreas'],
+                'Physiology': ['Digestion', 'Absorption', 'Motility', 'Secretions'],
+                'Pathology': ['GERD', 'PUD', 'IBD', 'Hepatitis', 'Cirrhosis', 'Pancreatitis'],
+                'Pharmacology': ['PPIs', 'H2 Blockers', 'Antiemetics', 'Laxatives']
+            },
+            'Endocrine': {
+                'Anatomy': ['Pituitary', 'Thyroid', 'Adrenals', 'Pancreas'],
+                'Physiology': ['Hormone Regulation', 'Feedback Loops', 'Metabolism'],
+                'Pathology': ['Diabetes', 'Hypothyroidism', 'Hyperthyroidism', 'Cushing', 'Addison'],
+                'Pharmacology': ['Insulin', 'Oral Hypoglycemics', 'Thyroid Hormones', 'Steroids']
+            },
+            'Hematology': {
+                'Physiology': ['RBC Production', 'Coagulation Cascade', 'Platelet Function'],
+                'Pathology': ['Anemia', 'Leukemia', 'Lymphoma', 'Coagulopathies'],
+                'Pharmacology': ['Anticoagulants', 'Antiplatelets', 'Thrombolytics', 'Iron/B12/Folate']
+            }
         };
 
-        function loadStats() {
-            try {
-                const saved = localStorage.getItem('synapse_stats');
-                return saved ? JSON.parse(saved) : getDefaultStats();
-            } catch { return getDefaultStats(); }
+        // Topic Keywords for AI Validation
+        const TOPIC_KEYWORDS = {
+            'Autonomics': ['cholinergic', 'muscarinic', 'nicotinic', 'acetylcholine', 'parasympathetic', 'sympathetic', 'adrenergic', 'bethanechol', 'pilocarpine', 'carbachol', 'atropine', 'epinephrine', 'norepinephrine', 'dopamine', 'alpha', 'beta', 'receptor'],
+            'Cardiovascular': ['heart', 'cardiac', 'coronary', 'artery', 'vein', 'blood', 'pressure', 'hypertension', 'ECG', 'systole', 'diastole', 'valve', 'mitral', 'aortic', 'ventricle', 'atrium'],
+            'Renal': ['kidney', 'nephron', 'glomerular', 'filtration', 'tubular', 'macula densa', 'GFR', 'creatinine', 'BUN', 'proteinuria', 'diuretic', 'loop of henle', 'collecting duct'],
+            'Neurology': ['brain', 'neuron', 'synapse', 'neurotransmitter', 'action potential', 'dopamine', 'serotonin', 'GABA', 'glutamate', 'stroke', 'seizure', 'dementia'],
+            'Respiratory': ['lung', 'bronchi', 'alveoli', 'ventilation', 'perfusion', 'oxygen', 'CO2', 'tidal volume', 'FEV1', 'COPD', 'asthma', 'pneumonia'],
+            'GI': ['stomach', 'intestine', 'liver', 'pancreas', 'digestion', 'absorption', 'bile', 'enzyme', 'pepsin', 'lipase', 'amylase', 'GERD', 'ulcer'],
+            'Endocrine': ['hormone', 'insulin', 'glucagon', 'thyroid', 'cortisol', 'adrenal', 'pituitary', 'diabetes', 'hypothyroid', 'hyperthyroid'],
+            'Hematology': ['blood', 'RBC', 'WBC', 'platelet', 'hemoglobin', 'coagulation', 'clotting', 'anemia', 'leukemia', 'lymphoma', 'bleeding']
+        };
+
+        const RANKS = [
+            { name: 'Pre-med', hours: 0, icon: '📚' },
+            { name: 'M1', hours: 10, icon: '🔬' },
+            { name: 'M2', hours: 25, icon: '🧬' },
+            { name: 'Clinical Clerk', hours: 50, icon: '🩺' },
+            { name: 'Intern', hours: 100, icon: '👨‍⚕️' },
+            { name: 'Resident', hours: 250, icon: '🏥' },
+            { name: 'Fellow', hours: 500, icon: '🎓' },
+            { name: 'Attending', hours: 1000, icon: '⭐' },
+            { name: 'Department Chair', hours: 2500, icon: '👑' }
+        ];
+
+        // ============ APP STATE ============
+        let appState = {
+            currentView: 'dashboard',
+            selectedSubject: null,
+            subjectPath: [],
+            timerProfile: { work: 50, break: 10 },
+            strictnessLevel: 'chief',
+            audioEnvironment: 'none',
+            isTimerRunning: false,
+            isPaused: false,
+            timerSeconds: 0,
+            timerInterval: null,
+            isBreak: false,
+            isFaceDown: true,
+            faceUpCounter: 0,
+            faceUpWarningTimeout: null,
+            sessions: [],
+            stats: {
+                totalMinutes: 2850,
+                streak: 12,
+                sessionsCompleted: 89,
+                successRate: 94,
+                vaultMinutes: 45
+            },
+            settings: {
+                scrubMode: true,
+                exitTicketRequired: true,
+                emergencyBreaks: false,
+                ankiDetection: false,
+                notionSync: false,
+                charityPenalty: false
+            }
+        };
+
+        // Load from localStorage
+        function loadState() {
+            const saved = localStorage.getItem('synapse_state');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                appState = { ...appState, ...parsed };
+            }
         }
 
-        function getDefaultStats() {
-            return {
-                totalHours: 0,
-                totalSessions: 0,
-                currentStreak: 0,
-                longestStreak: 0,
-                vaultBalance: 0,
-                perfectExits: 0,
-                nightSessions: 0,
-                marathonCompleted: false,
-                subjectHours: {},
-                lastSessionDate: null
+        function saveState() {
+            localStorage.setItem('synapse_state', JSON.stringify({
+                sessions: appState.sessions,
+                stats: appState.stats,
+                settings: appState.settings
+            }));
+        }
+
+        // ============ INITIALIZATION ============
+        document.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            initNeuralBackground();
+            populateSubjects();
+            generateHeatmap();
+            generatePaceAnalysis();
+            generateSessionLog();
+            updateDashboard();
+            requestMotionPermission();
+        });
+
+        function initNeuralBackground() {
+            const bg = document.getElementById('neuralBg');
+            for (let i = 0; i < 15; i++) {
+                const line = document.createElement('div');
+                line.className = 'synapse-line';
+                line.style.width = `${Math.random() * 200 + 100}px`;
+                line.style.left = `${Math.random() * 100}%`;
+                line.style.top = `${Math.random() * 100}%`;
+                line.style.animationDelay = `${Math.random() * 3}s`;
+                line.style.transform = `rotate(${Math.random() * 360}deg)`;
+                bg.appendChild(line);
+            }
+        }
+
+        // ============ NAVIGATION ============
+        function showView(viewName) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            const viewMap = {
+                'dashboard': 'dashboardView',
+                'timer': 'timerView',
+                'chart': 'chartView',
+                'residency': 'residencyView',
+                'settings': 'settingsView'
+            };
+            
+            document.getElementById(viewMap[viewName]).classList.add('active');
+            
+            const navIndex = ['dashboard', 'chart', 'residency', 'settings'].indexOf(viewName);
+            if (navIndex >= 0) {
+                document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
+            }
+            
+            appState.currentView = viewName;
+        }
+
+        // ============ SUBJECT SELECTION ============
+        function populateSubjects(path = []) {
+            const grid = document.getElementById('subjectGrid');
+            const breadcrumb = document.getElementById('currentPath');
+            
+            let current = MEDICAL_CURRICULUM;
+            let pathStr = 'Select a system';
+            
+            for (const p of path) {
+                current = current[p];
+                pathStr = path.join(' > ');
+            }
+            
+            breadcrumb.innerHTML = pathStr;
+            grid.innerHTML = '';
+            
+            if (path.length > 0) {
+                const backItem = document.createElement('div');
+                backItem.className = 'subject-item';
+                backItem.innerHTML = '← Back';
+                backItem.onclick = () => {
+                    appState.subjectPath.pop();
+                    populateSubjects(appState.subjectPath);
+                };
+                grid.appendChild(backItem);
+            }
+            
+            if (typeof current === 'object' && !Array.isArray(current)) {
+                for (const key of Object.keys(current)) {
+                    const item = document.createElement('div');
+                    item.className = 'subject-item has-children';
+                    item.innerHTML = `<span>📁</span>${key}`;
+                    item.onclick = () => {
+                        appState.subjectPath.push(key);
+                        populateSubjects(appState.subjectPath);
+                    };
+                    grid.appendChild(item);
+                }
+            } else if (Array.isArray(current)) {
+                for (const topic of current) {
+                    const item = document.createElement('div');
+                    item.className = 'subject-item' + (appState.selectedSubject === topic ? ' selected' : '');
+                    item.innerHTML = `<span>📄</span>${topic}`;
+                    item.onclick = () => {
+                        document.querySelectorAll('.subject-item').forEach(i => i.classList.remove('selected'));
+                        item.classList.add('selected');
+                        appState.selectedSubject = topic;
+                    };
+                    grid.appendChild(item);
+                }
+            }
+        }
+
+        // ============ TIMER CONFIGURATION ============
+        function selectTimerProfile(el) {
+            document.querySelectorAll('.timer-profile').forEach(p => p.classList.remove('selected'));
+            el.classList.add('selected');
+            appState.timerProfile = {
+                work: parseInt(el.dataset.work),
+                break: parseInt(el.dataset.break)
             };
         }
 
-        function loadSessions() {
-            try {
-                const saved = localStorage.getItem('synapse_sessions');
-                return saved ? JSON.parse(saved) : [];
-            } catch { return []; }
+        function selectStrictness(el) {
+            document.querySelectorAll('.strictness-option').forEach(o => o.classList.remove('selected'));
+            el.classList.add('selected');
+            appState.strictnessLevel = el.dataset.level;
         }
 
-        function saveData() {
-            localStorage.setItem('synapse_stats', JSON.stringify(state.stats));
-            localStorage.setItem('synapse_sessions', JSON.stringify(state.sessions));
+        function selectAudio(el) {
+            document.querySelectorAll('.audio-option').forEach(o => o.classList.remove('selected'));
+            el.classList.add('selected');
+            appState.audioEnvironment = el.dataset.audio;
         }
 
-        // ============ HELPERS ============
-        function showAlert(message, type = 'error') {
-            state.alert = { message, type };
-            render();
-            setTimeout(() => { state.alert = null; render(); }, 3000);
-        }
-
-        function getPreset() { return TIMER_PRESETS.find(p => p.id === state.selectedPreset) || TIMER_PRESETS[0]; }
-        function getSubject() { return SUBJECTS.find(s => s.id === state.selectedSubject) || SUBJECTS[0]; }
-        function formatTime(seconds) {
-            const m = Math.floor(seconds / 60);
-            const s = seconds % 60;
-            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        }
-
-        function getRank() {
-            const hours = state.stats.totalHours;
-            let rank = RANKS[0];
-            for (const r of RANKS) {
-                if (hours >= r.minHours) rank = r;
+        // ============ QUICK START ============
+        function quickStart(type) {
+            if (type === 'anki') {
+                appState.timerProfile = { work: 10, break: 2 };
+                appState.selectedSubject = 'Anki Review';
+            } else if (type === 'blocks') {
+                appState.timerProfile = { work: 60, break: 10 };
             }
-            return rank;
+            startSession();
         }
 
-        function getNextRank() {
-            const hours = state.stats.totalHours;
-            for (const r of RANKS) {
-                if (hours < r.minHours) return r;
-            }
-            return null;
-        }
-
-        function getProgress() {
-            return ((state.totalTime - state.timeRemaining) / state.totalTime) * 100;
-        }
-
-        function getCircumference() { return 2 * Math.PI * 120; }
-
-        // ============ AUDIO ============
-        let audioContext = null;
-        let audioNodes = [];
-
-        function startAudio() {
-            if (state.audioEnvironment === 'silent') return;
-            stopAudio();
-            
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const gainNode = audioContext.createGain();
-                gainNode.gain.value = state.volume * 0.3;
-                gainNode.connect(audioContext.destination);
-
-                if (state.audioEnvironment === 'brown') {
-                    const bufferSize = 2 * audioContext.sampleRate;
-                    const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
-                    const data = buffer.getChannelData(0);
-                    let lastOut = 0;
-                    for (let i = 0; i < bufferSize; i++) {
-                        const white = Math.random() * 2 - 1;
-                        data[i] = (lastOut + (0.02 * white)) / 1.02;
-                        lastOut = data[i];
-                        data[i] *= 3.5;
-                    }
-                    const source = audioContext.createBufferSource();
-                    source.buffer = buffer;
-                    source.loop = true;
-                    source.connect(gainNode);
-                    source.start();
-                    audioNodes.push(source);
-                } else if (state.audioEnvironment === 'rain') {
-                    // Pink noise for rain
-                    const bufferSize = 2 * audioContext.sampleRate;
-                    const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
-                    const data = buffer.getChannelData(0);
-                    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
-                    for (let i = 0; i < bufferSize; i++) {
-                        const white = Math.random() * 2 - 1;
-                        b0 = 0.99886 * b0 + white * 0.0555179;
-                        b1 = 0.99332 * b1 + white * 0.0750759;
-                        b2 = 0.96900 * b2 + white * 0.1538520;
-                        b3 = 0.86650 * b3 + white * 0.3104856;
-                        b4 = 0.55000 * b4 + white * 0.5329522;
-                        b5 = -0.7616 * b5 - white * 0.0168980;
-                        data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
-                        b6 = white * 0.115926;
-                    }
-                    const source = audioContext.createBufferSource();
-                    source.buffer = buffer;
-                    source.loop = true;
-                    source.connect(gainNode);
-                    source.start();
-                    audioNodes.push(source);
-                } else {
-                    // Generic ambient noise for library/coffee
-                    const bufferSize = 2 * audioContext.sampleRate;
-                    const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
-                    const data = buffer.getChannelData(0);
-                    for (let i = 0; i < bufferSize; i++) {
-                        data[i] = (Math.random() * 2 - 1) * 0.1;
-                    }
-                    const source = audioContext.createBufferSource();
-                    source.buffer = buffer;
-                    source.loop = true;
-                    const filter = audioContext.createBiquadFilter();
-                    filter.type = 'lowpass';
-                    filter.frequency.value = state.audioEnvironment === 'library' ? 200 : 800;
-                    source.connect(filter);
-                    filter.connect(gainNode);
-                    source.start();
-                    audioNodes.push(source);
-                }
-            } catch (e) {
-                console.log('Audio not supported');
-            }
-        }
-
-        function stopAudio() {
-            audioNodes.forEach(node => {
-                try { node.stop(); } catch {}
-            });
-            audioNodes = [];
-            if (audioContext) {
-                try { audioContext.close(); } catch {}
-                audioContext = null;
-            }
-        }
-
-        function updateVolume(vol) {
-            state.volume = vol;
-            if (audioContext) {
-                stopAudio();
-                if (state.timerState === 'running') startAudio();
-            }
-        }
-
-        // ============ TIMER ============
-        let timerInterval = null;
-
-        function startTimer() {
-            if (state.timerState === 'running') return;
-            
-            if (state.timerState === 'idle') {
-                state.timeRemaining = getPreset().work * 60;
-                state.totalTime = state.timeRemaining;
-                state.isBreak = false;
+        // ============ SESSION CONTROL ============
+        function startSession() {
+            if (!appState.selectedSubject && appState.subjectPath.length === 0) {
+                showToast('Please select a subject first', 'warning');
+                return;
             }
             
-            state.timerState = 'running';
-            startAudio();
+            const subject = appState.selectedSubject || appState.subjectPath.join(' - ');
             
-            timerInterval = setInterval(() => {
-                state.timeRemaining--;
-                
-                if (state.timeRemaining <= 0) {
-                    clearInterval(timerInterval);
-                    stopAudio();
+            document.getElementById('timerSubject').textContent = subject.toUpperCase();
+            document.getElementById('timerMode').textContent = 
+                `${appState.timerProfile.work}/${appState.timerProfile.break} Mode • ${appState.strictnessLevel.charAt(0).toUpperCase() + appState.strictnessLevel.slice(1)}`;
+            
+            appState.timerSeconds = appState.timerProfile.work * 60;
+            appState.isBreak = false;
+            appState.isTimerRunning = true;
+            appState.isPaused = false;
+            appState.isFaceDown = true;
+            
+            updateTimerDisplay();
+            showView('timer');
+            startTimerInterval();
+            
+            // Start orientation monitoring
+            startOrientationMonitoring();
+        }
+
+        function startTimerInterval() {
+            if (appState.timerInterval) clearInterval(appState.timerInterval);
+            
+            appState.timerInterval = setInterval(() => {
+                if (!appState.isPaused && appState.isTimerRunning) {
+                    appState.timerSeconds--;
+                    updateTimerDisplay();
                     
-                    if (state.isBreak) {
-                        state.timerState = 'idle';
-                        state.timeRemaining = getPreset().work * 60;
-                        state.totalTime = state.timeRemaining;
-                        state.isBreak = false;
-                        showAlert('Break complete! Ready for next session.', 'success');
-                    } else {
-                        state.timerState = 'exitTicket';
-                        state.exitTicketText = '';
-                        // Play notification sound
-                        try {
-                            const ctx = new AudioContext();
-                            const osc = ctx.createOscillator();
-                            const gain = ctx.createGain();
-                            osc.connect(gain);
-                            gain.connect(ctx.destination);
-                            osc.frequency.value = 800;
-                            gain.gain.setValueAtTime(0.3, ctx.currentTime);
-                            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
-                            osc.start(ctx.currentTime);
-                            osc.stop(ctx.currentTime + 0.5);
-                        } catch {}
+                    if (appState.timerSeconds <= 0) {
+                        timerComplete();
                     }
                 }
-                render();
             }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(appState.timerSeconds / 60);
+            const seconds = appState.timerSeconds % 60;
+            document.getElementById('timerDisplay').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             
-            render();
+            // Update progress circle
+            const totalSeconds = appState.isBreak ? 
+                appState.timerProfile.break * 60 : 
+                appState.timerProfile.work * 60;
+            const progress = appState.timerSeconds / totalSeconds;
+            const circumference = 2 * Math.PI * 130;
+            const offset = circumference * (1 - progress);
+            document.getElementById('timerProgress').style.strokeDashoffset = offset;
+            
+            document.getElementById('timerPhase').textContent = 
+                appState.isBreak ? 'Break Time' : 'Focus Time';
         }
 
         function pauseTimer() {
-            if (state.strictnessLevel !== 'intern') {
-                return showAlert('Cannot pause in this strictness level!', 'error');
-            }
-            clearInterval(timerInterval);
-            stopAudio();
-            state.timerState = 'paused';
-            render();
-        }
-
-        function resetTimer() {
-            clearInterval(timerInterval);
-            stopAudio();
-            state.timerState = 'idle';
-            state.timeRemaining = getPreset().work * 60;
-            state.totalTime = state.timeRemaining;
-            state.isBreak = false;
-            render();
-        }
-
-        function failSession() {
-            clearInterval(timerInterval);
-            stopAudio();
-            state.timerState = 'idle';
-            state.timeRemaining = getPreset().work * 60;
-            state.totalTime = state.timeRemaining;
-            state.isBreak = false;
-            showAlert('Session failed. Streak frozen.', 'error');
-            render();
-        }
-
-        function validateExitTicket() {
-            const text = state.exitTicketText.toLowerCase().trim();
-            const bullets = text.split('\n').filter(line => line.trim().length > 0);
-            
-            if (bullets.length < 3) {
-                return showAlert('Please enter at least 3 bullet points!', 'error');
+            if (appState.strictnessLevel !== 'intern') {
+                showToast('Pausing not allowed in this mode', 'warning');
+                return;
             }
             
-            const subject = getSubject();
-            const foundKeywords = subject.keywords.filter(kw => text.includes(kw.toLowerCase()));
-            const isValid = foundKeywords.length >= 2 || state.strictnessLevel === 'intern';
+            appState.isPaused = !appState.isPaused;
+            document.getElementById('pauseBtn').textContent = appState.isPaused ? '▶️' : '⏸️';
+        }
+
+        function timerComplete() {
+            clearInterval(appState.timerInterval);
+            appState.isTimerRunning = false;
             
-            if (isValid) {
-                const preset = getPreset();
-                const hours = preset.work / 60;
-                const vaultMinutes = Math.floor(preset.work / 6);
-                
-                // Update stats
-                state.stats.totalHours += hours;
-                state.stats.totalSessions++;
-                state.stats.vaultBalance += vaultMinutes;
-                state.stats.currentStreak++;
-                if (state.stats.currentStreak > state.stats.longestStreak) {
-                    state.stats.longestStreak = state.stats.currentStreak;
-                }
-                
-                // Subject hours
-                if (!state.stats.subjectHours[state.selectedSubject]) {
-                    state.stats.subjectHours[state.selectedSubject] = 0;
-                }
-                state.stats.subjectHours[state.selectedSubject] += hours;
-                
-                // Check for perfect exit (many keywords)
-                if (foundKeywords.length >= 4) {
-                    state.stats.perfectExits = (state.stats.perfectExits || 0) + 1;
-                }
-                
-                // Check for night session
-                const hour = new Date().getHours();
-                if (hour >= 0 && hour < 5) {
-                    state.stats.nightSessions = (state.stats.nightSessions || 0) + 1;
-                }
-                
-                // Check for marathon
-                if (preset.work >= 90) {
-                    state.stats.marathonCompleted = true;
-                }
-                
-                state.stats.lastSessionDate = new Date().toISOString().split('T')[0];
-                
-                // Add session to history
-                state.sessions.unshift({
-                    id: Date.now(),
-                    subject: state.selectedSubject,
-                    duration: preset.work,
-                    date: new Date().toISOString(),
-                    notes: state.exitTicketText,
-                    passed: true
-                });
-                
-                // Keep only last 100 sessions
-                if (state.sessions.length > 100) {
-                    state.sessions = state.sessions.slice(0, 100);
-                }
-                
-                saveData();
-                
-                // Start break
-                state.timerState = 'break';
-                state.timeRemaining = preset.break * 60;
-                state.totalTime = state.timeRemaining;
-                state.isBreak = true;
-                startTimer();
-                
-                showAlert(`Session Complete! +${vaultMinutes} vault minutes`, 'success');
+            // Vibrate
+            if (navigator.vibrate) {
+                navigator.vibrate([200, 100, 200, 100, 200]);
+            }
+            
+            if (appState.isBreak) {
+                // Break complete, start new work session
+                appState.timerSeconds = appState.timerProfile.work * 60;
+                appState.isBreak = false;
+                startTimerInterval();
             } else {
-                showAlert(`Include more ${subject.name} keywords in your notes.`, 'error');
+                // Work complete, show exit ticket
+                if (appState.settings.exitTicketRequired && appState.strictnessLevel !== 'intern') {
+                    showExitTicket();
+                } else {
+                    completeSession(true);
+                }
             }
         }
 
-        // ============ RENDER ============
-        function render() {
-            const root = document.getElementById('root');
-            root.innerHTML = `
-                <div class="app">
-                    ${state.alert ? renderAlert() : ''}
-                    ${state.faceDownWarning ? renderFaceDownWarning() : ''}
-                    ${renderScreen()}
-                    ${renderNav()}
-                </div>
-            `;
-            attachEvents();
-        }
-
-        function renderAlert() {
-            return `<div class="alert ${state.alert.type}">${state.alert.type === 'success' ? '✓' : state.alert.type === 'error' ? '✕' : '⚠'} ${state.alert.message}</div>`;
-        }
-
-        function renderFaceDownWarning() {
-            return `<div class="face-down-warning"><h2>⚠️ Phone Lifted!</h2><p>Place phone face down to continue</p></div>`;
-        }
-
-        function renderNav() {
-            const items = [
-                { id: 'home', icon: '🏠', label: 'Home' },
-                { id: 'timer', icon: '⏱️', label: 'Timer' },
-                { id: 'dashboard', icon: '📊', label: 'Chart' },
-                { id: 'profile', icon: '👤', label: 'Profile' },
-                { id: 'vault', icon: '🎁', label: 'Vault' },
-                { id: 'settings', icon: '⚙️', label: 'Settings' }
-            ];
-            return `
-                <nav class="nav">
-                    ${items.map(item => `
-                        <button class="nav-btn ${state.screen === item.id ? 'active' : ''}" data-screen="${item.id}">
-                            <span class="nav-icon">${item.icon}</span>
-                            <span>${item.label}</span>
-                        </button>
-                    `).join('')}
-                </nav>
-            `;
-        }
-
-        function renderScreen() {
-            switch (state.screen) {
-                case 'home': return renderHome();
-                case 'timer': return renderTimer();
-                case 'dashboard': return renderDashboard();
-                case 'profile': return renderProfile();
-                case 'vault': return renderVault();
-                case 'settings': return renderSettings();
-                default: return renderHome();
+        function cancelSession() {
+            if (confirm('Cancel this session? It will not count towards your streak.')) {
+                clearInterval(appState.timerInterval);
+                appState.isTimerRunning = false;
+                stopOrientationMonitoring();
+                showView('dashboard');
             }
         }
 
-        function renderHome() {
-            const preset = getPreset();
-            const subject = getSubject();
-            return `
-                <div class="screen">
-                    <div class="header">
-                        <div class="logo">🧠</div>
-                        <h1 class="title">SYNAPSE</h1>
-                        <p class="subtitle">Proof-of-Work Focus Tool</p>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-title">📚 Study Subject</div>
-                        <select class="select" id="subjectSelect">
-                            ${SUBJECTS.map(s => `
-                                <option value="${s.id}" ${s.id === state.selectedSubject ? 'selected' : ''}>
-                                    ${s.icon} ${s.name}
-                                </option>
-                            `).join('')}
-                        </select>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-title">⏱️ Timer Preset</div>
-                        <select class="select" id="presetSelect">
-                            ${TIMER_PRESETS.map(p => `
-                                <option value="${p.id}" ${p.id === state.selectedPreset ? 'selected' : ''}>
-                                    ${p.name} (${p.work}m / ${p.break}m) - ${p.description}
-                                </option>
-                            `).join('')}
-                        </select>
-                    </div>
-                    
-                    <div class="stats-grid" style="margin-bottom: 20px;">
-                        <div class="stat-card">
-                            <div class="stat-value">${state.stats.totalHours.toFixed(1)}</div>
-                            <div class="stat-label">Total Hours</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value">${state.stats.currentStreak}</div>
-                            <div class="stat-label">Day Streak 🔥</div>
-                        </div>
-                    </div>
-                    
-                    <button class="btn btn-primary" id="beginBtn">
-                        ⚡ Begin Your Shift
-                    </button>
-                </div>
-            `;
+        // ============ EXIT TICKET ============
+        function showExitTicket() {
+            const subject = appState.selectedSubject || appState.subjectPath.join(' - ');
+            document.getElementById('exitTicketTopic').textContent = subject;
+            document.getElementById('exitTicketInput').value = '';
+            document.getElementById('validationResult').classList.remove('show', 'success', 'failure');
+            document.getElementById('exitTicketModal').classList.add('active');
         }
 
-        function renderTimer() {
-            if (state.timerState === 'exitTicket') {
-                return renderExitTicket();
+        function submitExitTicket() {
+            const input = document.getElementById('exitTicketInput').value.trim().toLowerCase();
+            const subject = appState.selectedSubject || appState.subjectPath[0] || 'General';
+            
+            if (input.length < 20) {
+                showToast('Please write more about what you learned', 'warning');
+                return;
             }
             
-            const progress = getProgress();
-            const circumference = getCircumference();
-            const offset = circumference - (progress / 100) * circumference;
-            const subject = getSubject();
+            // AI Validation (simple keyword matching)
+            const relevantKeywords = findRelevantKeywords(subject);
+            const matchedKeywords = relevantKeywords.filter(kw => input.includes(kw.toLowerCase()));
             
-            return `
-                <div class="screen timer-container">
-                    <div class="audio-controls">
-                        <button class="audio-btn" id="audioBtn">
-                            ${state.volume === 0 ? '🔇' : state.volume < 0.5 ? '🔉' : '🔊'}
-                        </button>
-                        ${state.showVolume ? `
-                            <div class="volume-popup">
-                                <div class="volume-label">${AUDIO_ENVIRONMENTS.find(a => a.id === state.audioEnvironment)?.name || 'Silent'}</div>
-                                <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="${state.volume * 100}">
-                                <div class="volume-label">${Math.round(state.volume * 100)}%</div>
-                            </div>
-                        ` : ''}
+            const validationResult = document.getElementById('validationResult');
+            const keywordsContainer = document.getElementById('keywordsMatched');
+            
+            if (matchedKeywords.length >= 2) {
+                // Success
+                validationResult.className = 'validation-result show success';
+                validationResult.innerHTML = `
+                    <div class="validation-header">
+                        <span class="validation-icon">✓</span>
+                        <span class="validation-text">Validation Passed!</span>
                     </div>
-                    
-                    <div class="timer-ring-container ${state.timerState === 'running' ? 'glowing' : ''}">
-                        <svg class="timer-ring" viewBox="0 0 260 260">
-                            <defs>
-                                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stop-color="#0891b2" />
-                                    <stop offset="100%" stop-color="#22d3ee" />
-                                </linearGradient>
-                            </defs>
-                            <circle class="timer-ring-bg" cx="130" cy="130" r="120" />
-                            <circle 
-                                class="timer-ring-progress" 
-                                cx="130" 
-                                cy="130" 
-                                r="120"
-                                stroke-dasharray="${circumference}"
-                                stroke-dashoffset="${offset}"
-                            />
-                        </svg>
-                        <div class="timer-center">
-                            <div class="timer-time ${state.timerState === 'running' ? 'pulsing' : ''}">${formatTime(state.timeRemaining)}</div>
-                            <div class="timer-label">${state.isBreak ? '☕ Break Time' : '🎯 Focus Mode'}</div>
-                            <div class="timer-subject">${subject.icon} ${subject.name}</div>
-                        </div>
+                    <div class="validation-details">Found ${matchedKeywords.length} relevant concepts</div>
+                    <div class="keywords-matched" id="keywordsMatched"></div>
+                `;
+                
+                keywordsContainer.innerHTML = matchedKeywords.map(kw => 
+                    `<span class="keyword-tag">${kw}</span>`
+                ).join('');
+                
+                setTimeout(() => {
+                    document.getElementById('exitTicketModal').classList.remove('active');
+                    completeSession(true, input);
+                }, 1500);
+            } else {
+                // Failure
+                validationResult.className = 'validation-result show failure';
+                validationResult.innerHTML = `
+                    <div class="validation-header" style="color: var(--accent-danger)">
+                        <span class="validation-icon">✗</span>
+                        <span class="validation-text">Validation Failed</span>
                     </div>
-                    
-                    <div class="timer-controls">
-                        <button class="timer-btn danger" id="resetBtn" title="Reset">↺</button>
-                        ${state.timerState === 'running' 
-                            ? `<button class="timer-btn primary" id="pauseBtn" title="Pause">⏸</button>`
-                            : `<button class="timer-btn primary" id="playBtn" title="Start">▶</button>`
+                    <div class="validation-details">Not enough relevant concepts found. Try including specific terms related to ${subject}.</div>
+                `;
+            }
+        }
+
+        function findRelevantKeywords(subject) {
+            for (const [topic, keywords] of Object.entries(TOPIC_KEYWORDS)) {
+                if (subject.toLowerCase().includes(topic.toLowerCase()) || 
+                    topic.toLowerCase().includes(subject.toLowerCase())) {
+                    return keywords;
+                }
+            }
+            // Return general medical keywords
+            return ['study', 'learn', 'concept', 'understand', 'mechanism', 'function', 'clinical', 'treatment', 'diagnosis', 'symptoms'];
+        }
+
+        function skipExitTicket() {
+            document.getElementById('exitTicketModal').classList.remove('active');
+            completeSession(false);
+        }
+
+        function completeSession(verified, notes = '') {
+            stopOrientationMonitoring();
+            
+            const subject = appState.selectedSubject || appState.subjectPath.join(' - ');
+            const duration = appState.timerProfile.work;
+            
+            const session = {
+                id: Date.now(),
+                subject,
+                duration,
+                notes,
+                verified,
+                timestamp: new Date().toISOString()
+            };
+            
+            appState.sessions.unshift(session);
+            
+            if (verified) {
+                appState.stats.totalMinutes += duration;
+                appState.stats.sessionsCompleted++;
+                appState.stats.vaultMinutes += Math.floor(duration / 6); // 10 min reward per 60 min work
+                
+                showToast(`Session complete! +${Math.floor(duration / 6)} vault minutes earned`, 'success');
+            } else {
+                showToast('Session logged without verification', 'warning');
+            }
+            
+            saveState();
+            updateDashboard();
+            showView('dashboard');
+            
+            // Start break if configured
+            if (appState.timerProfile.break > 0 && verified) {
+                setTimeout(() => {
+                    if (confirm(`Take a ${appState.timerProfile.break} minute break?`)) {
+                        appState.timerSeconds = appState.timerProfile.break * 60;
+                        appState.isBreak = true;
+                        appState.isTimerRunning = true;
+                        showView('timer');
+                        startTimerInterval();
+                    }
+                }, 500);
+            }
+        }
+
+        // ============ ORIENTATION MONITORING (SURGICAL SCRUB MODE) ============
+        let orientationHandler = null;
+
+        function requestMotionPermission() {
+            if (typeof DeviceOrientationEvent !== 'undefined' && 
+                typeof DeviceOrientationEvent.requestPermission === 'function') {
+                // iOS 13+
+                DeviceOrientationEvent.requestPermission()
+                    .then(response => {
+                        if (response !== 'granted') {
+                            console.log('Device orientation permission denied');
                         }
-                        <button class="timer-btn" id="skipBtn" title="Skip">⏭</button>
-                    </div>
-                </div>
-            `;
+                    })
+                    .catch(console.error);
+            }
         }
 
-        function renderExitTicket() {
-            const subject = getSubject();
-            return `
-                <div class="exit-ticket">
-                    <div class="exit-ticket-header">
-                        <h2>🎓 Exit Ticket</h2>
-                        <p>Summarize what you learned about ${subject.name}</p>
-                    </div>
-                    
-                    <div class="card">
-                        <textarea 
-                            class="exit-textarea" 
-                            id="exitTextarea" 
-                            placeholder="• First key concept I learned...&#10;• Second important point...&#10;• Third takeaway..."
-                        >${state.exitTicketText}</textarea>
-                        
-                        <div class="keyword-hint">
-                            <strong>💡 Tip:</strong> Include keywords like: ${subject.keywords.slice(0, 5).join(', ')}
-                        </div>
-                    </div>
-                    
-                    <button class="btn btn-primary" id="submitExitBtn">
-                        ✓ Submit & Start Break
-                    </button>
-                    
-                    <button class="btn btn-secondary" id="skipExitBtn" style="margin-top: 12px;">
-                        Skip (Streak won't count)
-                    </button>
-                </div>
-            `;
-        }
-
-        function renderDashboard() {
-            const recentSessions = state.sessions.slice(0, 5);
-            const subjectStats = Object.entries(state.stats.subjectHours || {})
-                .map(([id, hours]) => ({ ...SUBJECTS.find(s => s.id === id), hours }))
-                .filter(s => s.hours)
-                .sort((a, b) => b.hours - a.hours)
-                .slice(0, 5);
+        function startOrientationMonitoring() {
+            if (!appState.settings.scrubMode) return;
             
-            return `
-                <div class="screen">
-                    <h2 style="margin-bottom: 20px; font-size: 24px;">📊 Clinical Chart</h2>
-                    
-                    <div class="stats-grid" style="margin-bottom: 20px;">
-                        <div class="stat-card">
-                            <div class="stat-value">${state.stats.totalHours.toFixed(1)}</div>
-                            <div class="stat-label">Total Hours</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value">${state.stats.totalSessions}</div>
-                            <div class="stat-label">Sessions</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value">${state.stats.currentStreak}</div>
-                            <div class="stat-label">Current Streak</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value">${state.stats.longestStreak}</div>
-                            <div class="stat-label">Best Streak</div>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-title">📅 Activity Heatmap</div>
-                        <div class="heatmap">
-                            ${generateHeatmap()}
-                        </div>
-                        <div style="display: flex; justify-content: flex-end; gap: 4px; margin-top: 8px; font-size: 10px; color: #64748b;">
-                            <span>Less</span>
-                            <div class="heatmap-cell" style="width: 12px; height: 12px;"></div>
-                            <div class="heatmap-cell l1" style="width: 12px; height: 12px;"></div>
-                            <div class="heatmap-cell l2" style="width: 12px; height: 12px;"></div>
-                            <div class="heatmap-cell l3" style="width: 12px; height: 12px;"></div>
-                            <div class="heatmap-cell l4" style="width: 12px; height: 12px;"></div>
-                            <span>More</span>
-                        </div>
-                    </div>
-                    
-                    ${subjectStats.length > 0 ? `
-                        <div class="card">
-                            <div class="card-title">📚 Subject Distribution</div>
-                            ${subjectStats.map(s => `
-                                <div style="margin-bottom: 12px;">
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                                        <span>${s.icon} ${s.name}</span>
-                                        <span style="color: #06b6d4;">${s.hours.toFixed(1)}h</span>
-                                    </div>
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" style="width: ${(s.hours / state.stats.totalHours) * 100}%"></div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    ` : ''}
-                    
-                    <div class="card">
-                        <div class="card-title">🕐 Recent Sessions</div>
-                        ${recentSessions.length > 0 ? recentSessions.map(session => {
-                            const subject = SUBJECTS.find(s => s.id === session.subject) || { icon: '📖', name: 'Study' };
-                            const date = new Date(session.date);
-                            return `
-                                <div class="session-item">
-                                    <div class="session-icon">${subject.icon}</div>
-                                    <div class="session-info">
-                                        <div class="session-subject">${subject.name}</div>
-                                        <div class="session-meta">${date.toLocaleDateString()} at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                                    </div>
-                                    <div class="session-duration">${session.duration}m</div>
-                                </div>
-                            `;
-                        }).join('') : '<p style="text-align: center; color: #64748b; padding: 20px;">No sessions yet. Start your first one!</p>'}
-                    </div>
-                </div>
-            `;
+            orientationHandler = (event) => {
+                const beta = event.beta; // -180 to 180 (front/back tilt)
+                const gamma = event.gamma; // -90 to 90 (left/right tilt)
+                
+                // Phone is face down if beta is between -180 and -150 or 150 and 180
+                // Or if the device is inverted
+                const isFaceDown = Math.abs(beta) > 140 || (beta < -140 || beta > 140);
+                
+                updatePhoneStatus(isFaceDown);
+            };
+            
+            window.addEventListener('deviceorientation', orientationHandler);
         }
 
+        function stopOrientationMonitoring() {
+            if (orientationHandler) {
+                window.removeEventListener('deviceorientation', orientationHandler);
+                orientationHandler = null;
+            }
+        }
+
+        function updatePhoneStatus(isFaceDown) {
+            const statusEl = document.getElementById('phoneStatus');
+            const textEl = document.getElementById('phoneStatusText');
+            const warningEl = document.getElementById('phoneWarning');
+            
+            if (isFaceDown) {
+                appState.isFaceDown = true;
+                appState.faceUpCounter = 0;
+                statusEl.className = 'phone-status face-down';
+                textEl.textContent = 'Phone is face down ✓';
+                warningEl.style.display = 'none';
+                
+                if (appState.faceUpWarningTimeout) {
+                    clearTimeout(appState.faceUpWarningTimeout);
+                    appState.faceUpWarningTimeout = null;
+                }
+            } else {
+                appState.isFaceDown = false;
+                statusEl.className = 'phone-status face-up';
+                textEl.textContent = 'Phone is face up!';
+                warningEl.style.display = 'block';
+                
+                if (!appState.faceUpWarningTimeout) {
+                    appState.faceUpWarningTimeout = setTimeout(() => {
+                        if (!appState.isFaceDown && appState.isTimerRunning) {
+                            sessionFailed('Your phone was face-up for too long. The session has been discarded.');
+                        }
+                    }, 3000);
+                }
+            }
+        }
+
+        function sessionFailed(message) {
+            clearInterval(appState.timerInterval);
+            appState.isTimerRunning = false;
+            stopOrientationMonitoring();
+            
+            document.getElementById('failedMessage').textContent = message;
+            document.getElementById('sessionFailedModal').classList.add('active');
+            
+            // Vibrate aggressively
+            if (navigator.vibrate) {
+                navigator.vibrate([500, 200, 500, 200, 500]);
+            }
+        }
+
+        function closeFailedModal() {
+            document.getElementById('sessionFailedModal').classList.remove('active');
+            showView('dashboard');
+        }
+
+        // ============ VOICE INPUT ============
+        let recognition = null;
+        let isRecording = false;
+
+        function toggleVoiceInput() {
+            const btn = document.getElementById('voiceInputBtn');
+            
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                showToast('Voice input not supported in this browser', 'error');
+                return;
+            }
+            
+            if (isRecording) {
+                recognition.stop();
+                isRecording = false;
+                btn.classList.remove('recording');
+                btn.innerHTML = '<span>🎤</span><span>Tap to dictate</span>';
+            } else {
+                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                
+                recognition.onresult = (event) => {
+                    let transcript = '';
+                    for (let i = 0; i < event.results.length; i++) {
+                        transcript += event.results[i][0].transcript;
+                    }
+                    document.getElementById('exitTicketInput').value = transcript;
+                };
+                
+                recognition.onerror = (event) => {
+                    console.error('Speech recognition error:', event.error);
+                    isRecording = false;
+                    btn.classList.remove('recording');
+                    btn.innerHTML = '<span>🎤</span><span>Tap to dictate</span>';
+                };
+                
+                recognition.start();
+                isRecording = true;
+                btn.classList.add('recording');
+                btn.innerHTML = '<span>🔴</span><span>Recording... Tap to stop</span>';
+            }
+        }
+
+        // ============ VAULT SYSTEM ============
+        function redeemVault(app) {
+            const costs = {
+                'instagram': 15,
+                'netflix': 30,
+                'youtube': 20,
+                'gaming': 60
+            };
+            
+            const cost = costs[app];
+            
+            if (appState.stats.vaultMinutes < cost) {
+                showToast(`Not enough vault time. Need ${cost} minutes.`, 'warning');
+                return;
+            }
+            
+            if (confirm(`Spend ${cost} minutes of vault time on ${app}?`)) {
+                appState.stats.vaultMinutes -= cost;
+                saveState();
+                updateDashboard();
+                showToast(`Enjoy your guilt-free ${app} time! (${cost} min)`, 'success');
+            }
+        }
+
+        // ============ DASHBOARD UPDATE ============
+        function updateDashboard() {
+            // Update stats
+            document.getElementById('currentStreak').textContent = appState.stats.streak;
+            document.getElementById('totalHours').textContent = 
+                (appState.stats.totalMinutes / 60).toFixed(1) + 'h';
+            document.getElementById('sessionsCompleted').textContent = appState.stats.sessionsCompleted;
+            document.getElementById('successRate').textContent = appState.stats.successRate + '%';
+            document.getElementById('vaultBalance').textContent = appState.stats.vaultMinutes + ' min';
+            
+            // Update rank
+            const totalHours = appState.stats.totalMinutes / 60;
+            let currentRank = RANKS[0];
+            let nextRank = RANKS[1];
+            
+            for (let i = 0; i < RANKS.length; i++) {
+                if (totalHours >= RANKS[i].hours) {
+                    currentRank = RANKS[i];
+                    nextRank = RANKS[i + 1] || RANKS[i];
+                }
+            }
+            
+            document.getElementById('userRank').textContent = currentRank.name;
+            document.getElementById('residencyRankTitle').textContent = currentRank.name;
+            
+            const progress = nextRank === currentRank ? 100 : 
+                ((totalHours - currentRank.hours) / (nextRank.hours - currentRank.hours)) * 100;
+            document.getElementById('progressPercent').textContent = Math.round(progress) + '%';
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        // ============ HEATMAP ============
         function generateHeatmap() {
-            const cells = [];
-            const today = new Date();
-            for (let i = 83; i >= 0; i--) {
-                const date = new Date(today);
-                date.setDate(date.getDate() - i);
-                const dateStr = date.toISOString().split('T')[0];
-                const sessionsOnDay = state.sessions.filter(s => s.date.startsWith(dateStr)).length;
-                let level = '';
-                if (sessionsOnDay >= 4) level = 'l4';
-                else if (sessionsOnDay >= 3) level = 'l3';
-                else if (sessionsOnDay >= 2) level = 'l2';
-                else if (sessionsOnDay >= 1) level = 'l1';
-                cells.push(`<div class="heatmap-cell ${level}" title="${dateStr}: ${sessionsOnDay} sessions"></div>`);
+            const grid = document.getElementById('heatmapGrid');
+            grid.innerHTML = '';
+            
+            // Generate 52 weeks of data
+            for (let week = 0; week < 52; week++) {
+                const weekEl = document.createElement('div');
+                weekEl.className = 'heatmap-week';
+                
+                for (let day = 0; day < 7; day++) {
+                    const dayEl = document.createElement('div');
+                    dayEl.className = 'heatmap-day';
+                    
+                    // Random level for demo
+                    const level = Math.floor(Math.random() * 5);
+                    if (level > 0) dayEl.classList.add(`level-${level}`);
+                    
+                    weekEl.appendChild(dayEl);
+                }
+                
+                grid.appendChild(weekEl);
             }
-            return cells.join('');
         }
 
-        function renderProfile() {
-            const rank = getRank();
-            const nextRank = getNextRank();
-            const progress = nextRank 
-                ? ((state.stats.totalHours - rank.minHours) / (nextRank.minHours - rank.minHours)) * 100
-                : 100;
+        // ============ PACE ANALYSIS ============
+        function generatePaceAnalysis() {
+            const list = document.getElementById('paceList');
             
-            return `
-                <div class="screen">
-                    <div class="profile-header">
-                        <div class="avatar">${rank.icon}</div>
-                        <div class="rank-name">${rank.name}</div>
-                        <div class="rank-subtitle">${state.stats.totalHours.toFixed(1)} hours of focused study</div>
-                        
-                        ${nextRank ? `
-                            <div class="progress-bar" style="margin-top: 20px;">
-                                <div class="progress-fill" style="width: ${progress}%"></div>
-                            </div>
-                            <div class="progress-label">
-                                <span>${rank.name}</span>
-                                <span>${nextRank.minHours - state.stats.totalHours.toFixed(0)}h to ${nextRank.name}</span>
-                            </div>
-                        ` : '<p style="color: #06b6d4; margin-top: 16px;">🎉 Maximum rank achieved!</p>'}
+            const paceData = [
+                { name: 'Cardiovascular', time: '3h 45m', color: '#ef4444', flag: null },
+                { name: 'Pharmacology', time: '2h 30m', color: '#10b981', flag: null },
+                { name: 'Neurology', time: '2h 15m', color: '#3b82f6', flag: null },
+                { name: 'Renal', time: '45m', color: '#f59e0b', flag: 'Needs review' },
+                { name: 'GI', time: '1h 20m', color: '#8b5cf6', flag: null }
+            ];
+            
+            list.innerHTML = paceData.map(item => `
+                <div class="pace-item">
+                    <div class="pace-subject">
+                        <div class="pace-color" style="background: ${item.color}"></div>
+                        <div class="pace-name">${item.name}</div>
                     </div>
-                    
-                    <div class="card">
-                        <div class="card-title">📈 Statistics</div>
-                        <div class="stats-grid">
-                            <div class="stat-card">
-                                <div class="stat-value">${state.stats.totalSessions}</div>
-                                <div class="stat-label">Total Sessions</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value">${state.stats.currentStreak}</div>
-                                <div class="stat-label">Current Streak</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value">${state.stats.longestStreak}</div>
-                                <div class="stat-label">Best Streak</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value">${state.stats.perfectExits || 0}</div>
-                                <div class="stat-label">Perfect Exits</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-title">🏆 Badges</div>
-                        <div class="badges-grid">
-                            ${BADGES.map(badge => {
-                                const unlocked = badge.check(state.stats);
-                                return `
-                                    <div class="badge ${unlocked ? '' : 'locked'}" title="${badge.desc}">
-                                        ${badge.icon} ${badge.name}
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-title">🎓 Rank Progression</div>
-                        ${RANKS.map((r, i) => `
-                            <div style="display: flex; align-items: center; gap: 12px; padding: 8px 0; opacity: ${state.stats.totalHours >= r.minHours ? 1 : 0.4}">
-                                <span style="font-size: 24px;">${r.icon}</span>
-                                <div style="flex: 1;">
-                                    <div style="font-weight: 500;">${r.name}</div>
-                                    <div style="font-size: 12px; color: #64748b;">${r.minHours}+ hours</div>
-                                </div>
-                                ${state.stats.totalHours >= r.minHours ? '<span style="color: #10b981;">✓</span>' : ''}
-                            </div>
-                        `).join('')}
+                    <div class="pace-stats">
+                        <div class="pace-time">${item.time}</div>
+                        ${item.flag ? `<div class="pace-flag">⚠️ ${item.flag}</div>` : ''}
                     </div>
                 </div>
-            `;
+            `).join('');
         }
 
-        function renderVault() {
-            return `
-                <div class="screen">
-                    <h2 style="margin-bottom: 20px; font-size: 24px;">🎁 Guilt-Free Vault</h2>
-                    
-                    <div class="vault-header">
-                        <div class="vault-amount">${state.stats.vaultBalance}</div>
-                        <div class="vault-label">Minutes Available</div>
-                        <div class="vault-info">1 hour focus = 10 minutes guilt-free leisure</div>
+        // ============ SESSION LOG ============
+        function generateSessionLog() {
+            const list = document.getElementById('sessionLogList');
+            
+            const demoSessions = [
+                {
+                    subject: 'Pharmacology - Autonomics',
+                    time: 'Today, 2:30 PM',
+                    duration: '50 min',
+                    notes: 'Covered cholinergic agonists, muscarinic vs nicotinic receptors, parasympathetic effects'
+                },
+                {
+                    subject: 'Cardiovascular - ECG',
+                    time: 'Today, 10:00 AM',
+                    duration: '60 min',
+                    notes: 'Reviewed P waves, QRS complex, ST segment changes, common arrhythmias'
+                },
+                {
+                    subject: 'Neurology - Stroke',
+                    time: 'Yesterday, 4:00 PM',
+                    duration: '50 min',
+                    notes: 'Ischemic vs hemorrhagic, risk factors, treatment timeline, rehabilitation'
+                }
+            ];
+            
+            list.innerHTML = demoSessions.map(session => `
+                <div class="log-entry">
+                    <div class="log-header">
+                        <div class="log-subject">${session.subject}</div>
+                        <div class="log-time">${session.time}</div>
                     </div>
-                    
-                    <div class="card">
-                        <div class="card-title">📱 Unlock Apps</div>
-                        <div class="app-grid">
-                            ${VAULT_APPS.map(app => {
-                                const canUnlock = state.stats.vaultBalance >= app.cost;
-                                return `
-                                    <div class="app-item ${canUnlock ? '' : 'locked'}" data-app="${app.id}" data-cost="${app.cost}">
-                                        <div class="app-icon">${app.icon}</div>
-                                        <div class="app-name">${app.name}</div>
-                                        <div class="app-cost">${app.cost} min</div>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-title">💡 How It Works</div>
-                        <p style="color: #94a3b8; font-size: 14px; line-height: 1.6;">
-                            Every hour of focused study earns you 10 minutes of guilt-free leisure time. 
-                            "Spend" your minutes to symbolically unlock your favorite apps. 
-                            This isn't about restriction—it's about earning your relaxation through productive work.
-                        </p>
+                    <div class="log-notes">${session.notes}</div>
+                    <div class="log-meta">
+                        <span>⏱️ ${session.duration}</span>
+                        <span>✅ Verified</span>
                     </div>
                 </div>
-            `;
+            `).join('');
         }
 
-        function renderSettings() {
-            return `
-                <div class="screen">
-                    <h2 style="margin-bottom: 20px; font-size: 24px;">⚙️ Settings</h2>
-                    
-                    <div class="settings-section">
-                        <div class="settings-section-title">Audio Environment</div>
-                        <div class="card" style="padding: 0;">
-                            ${AUDIO_ENVIRONMENTS.map(audio => `
-                                <div class="settings-item" data-audio="${audio.id}" style="cursor: pointer;">
-                                    <span class="settings-item-label">${audio.icon} ${audio.name}</span>
-                                    ${state.audioEnvironment === audio.id ? '<span style="color: #10b981;">✓</span>' : ''}
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                    
-                    <div class="settings-section">
-                        <div class="settings-section-title">Strictness Level</div>
-                        <div class="card" style="padding: 0;">
-                            ${STRICTNESS_LEVELS.map(level => `
-                                <div class="settings-item" data-strictness="${level.id}" style="cursor: pointer;">
-                                    <div>
-                                        <div class="settings-item-label">${level.name}</div>
-                                        <div style="font-size: 12px; color: #64748b;">${level.desc}</div>
-                                    </div>
-                                    ${state.strictnessLevel === level.id ? '<span style="color: #10b981;">✓</span>' : ''}
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                    
-                    <div class="settings-section">
-                        <div class="settings-section-title">Data</div>
-                        <button class="btn btn-secondary" id="exportBtn" style="margin-bottom: 12px;">
-                            📄 Export Study Data
-                        </button>
-                        <button class="btn btn-danger" id="resetDataBtn">
-                            🗑️ Reset All Data
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
-        // ============ EVENTS ============
-        function attachEvents() {
-            // Navigation
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.onclick = () => {
-                    state.screen = btn.dataset.screen;
-                    render();
-                };
-            });
+        // ============ SETTINGS ============
+        function toggleSetting(el) {
+            el.classList.toggle('active');
+            const settingId = el.id.replace('Toggle', '');
             
-            // Home screen
-            const subjectSelect = document.getElementById('subjectSelect');
-            if (subjectSelect) {
-                subjectSelect.onchange = (e) => {
-                    state.selectedSubject = e.target.value;
-                };
-            }
+            const settingMap = {
+                'scrubMode': 'scrubMode',
+                'exitTicket': 'exitTicketRequired',
+                'emergencyBreak': 'emergencyBreaks',
+                'anki': 'ankiDetection',
+                'notion': 'notionSync',
+                'charity': 'charityPenalty'
+            };
             
-            const presetSelect = document.getElementById('presetSelect');
-            if (presetSelect) {
-                presetSelect.onchange = (e) => {
-                    state.selectedPreset = e.target.value;
-                    if (state.timerState === 'idle') {
-                        state.timeRemaining = getPreset().work * 60;
-                        state.totalTime = state.timeRemaining;
-                    }
-                };
-            }
-            
-            const beginBtn = document.getElementById('beginBtn');
-            if (beginBtn) {
-                beginBtn.onclick = () => {
-                    state.screen = 'timer';
-                    state.timeRemaining = getPreset().work * 60;
-                    state.totalTime = state.timeRemaining;
-                    render();
-                };
-            }
-            
-            // Timer controls
-            const playBtn = document.getElementById('playBtn');
-            if (playBtn) playBtn.onclick = startTimer;
-            
-            const pauseBtn = document.getElementById('pauseBtn');
-            if (pauseBtn) pauseBtn.onclick = pauseTimer;
-            
-            const resetBtn = document.getElementById('resetBtn');
-            if (resetBtn) resetBtn.onclick = resetTimer;
-            
-            const skipBtn = document.getElementById('skipBtn');
-            if (skipBtn) {
-                skipBtn.onclick = () => {
-                    if (state.isBreak) {
-                        resetTimer();
-                        showAlert('Break skipped. Ready for next session!', 'success');
-                    }
-                };
-            }
-            
-            // Audio controls
-            const audioBtn = document.getElementById('audioBtn');
-            if (audioBtn) {
-                audioBtn.onclick = () => {
-                    state.showVolume = !state.showVolume;
-                    render();
-                };
-            }
-            
-            const volumeSlider = document.getElementById('volumeSlider');
-            if (volumeSlider) {
-                volumeSlider.oninput = (e) => {
-                    updateVolume(e.target.value / 100);
-                    render();
-                };
-            }
-            
-            // Exit ticket
-            const exitTextarea = document.getElementById('exitTextarea');
-            if (exitTextarea) {
-                exitTextarea.oninput = (e) => {
-                    state.exitTicketText = e.target.value;
-                };
-                exitTextarea.focus();
-            }
-            
-            const submitExitBtn = document.getElementById('submitExitBtn');
-            if (submitExitBtn) submitExitBtn.onclick = validateExitTicket;
-            
-            const skipExitBtn = document.getElementById('skipExitBtn');
-            if (skipExitBtn) {
-                skipExitBtn.onclick = () => {
-                    resetTimer();
-                    showAlert('Session skipped. Streak not updated.', 'warning');
-                };
-            }
-            
-            // Vault apps
-            document.querySelectorAll('.app-item:not(.locked)').forEach(item => {
-                item.onclick = () => {
-                    const cost = parseInt(item.dataset.cost);
-                    const appName = item.querySelector('.app-name').textContent;
-                    if (state.stats.vaultBalance >= cost) {
-                        state.stats.vaultBalance -= cost;
-                        saveData();
-                        showAlert(`🎉 Unlocked ${cost} minutes of ${appName}!`, 'success');
-                        render();
-                    }
-                };
-            });
-            
-            // Settings - Audio
-            document.querySelectorAll('[data-audio]').forEach(item => {
-                item.onclick = () => {
-                    state.audioEnvironment = item.dataset.audio;
-                    if (state.timerState === 'running') {
-                        stopAudio();
-                        startAudio();
-                    }
-                    render();
-                };
-            });
-            
-            // Settings - Strictness
-            document.querySelectorAll('[data-strictness]').forEach(item => {
-                item.onclick = () => {
-                    state.strictnessLevel = item.dataset.strictness;
-                    render();
-                };
-            });
-            
-            // Settings - Export
-            const exportBtn = document.getElementById('exportBtn');
-            if (exportBtn) {
-                exportBtn.onclick = () => {
-                    const data = {
-                        stats: state.stats,
-                        sessions: state.sessions,
-                        exportDate: new Date().toISOString()
-                    };
-                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `synapse-export-${new Date().toISOString().split('T')[0]}.json`;
-                    a.click();
-                    showAlert('Data exported successfully!', 'success');
-                };
-            }
-            
-            // Settings - Reset
-            const resetDataBtn = document.getElementById('resetDataBtn');
-            if (resetDataBtn) {
-                resetDataBtn.onclick = () => {
-                    if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
-                        state.stats = getDefaultStats();
-                        state.sessions = [];
-                        saveData();
-                        showAlert('All data has been reset.', 'success');
-                        render();
-                    }
-                };
+            if (settingMap[settingId]) {
+                appState.settings[settingMap[settingId]] = el.classList.contains('active');
+                saveState();
             }
         }
 
-        // ============ SERVICE WORKER ============
+        function setPeriod(period) {
+            document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // ============ EXPORT ============
+        function exportReport() {
+            const report = {
+                generatedAt: new Date().toISOString(),
+                stats: appState.stats,
+                recentSessions: appState.sessions.slice(0, 20)
+            };
+            
+            const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `synapse-ward-report-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showToast('Ward Report exported!', 'success');
+        }
+
+        function exportAllData() {
+            const data = {
+                exportedAt: new Date().toISOString(),
+                state: appState
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `synapse-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showToast('All data exported!', 'success');
+        }
+
+        function resetAllData() {
+            if (confirm('Are you sure? This will delete all your progress and cannot be undone.')) {
+                if (confirm('Really? All your hours, streaks, and sessions will be lost.')) {
+                    localStorage.removeItem('synapse_state');
+                    location.reload();
+                }
+            }
+        }
+
+        // ============ TOAST NOTIFICATIONS ============
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icons = {
+                success: '✓',
+                error: '✗',
+                warning: '⚠️'
+            };
+            
+            toast.className = `toast ${type}`;
+            toast.querySelector('.toast-icon').textContent = icons[type];
+            toast.querySelector('.toast-message').textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // ============ SERVICE WORKER REGISTRATION ============
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js').catch(() => {});
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker registered'))
+                .catch(err => console.log('Service Worker registration failed:', err));
         }
-
-        // ============ INIT ============
-        render();
     </script>
 </body>
 </html>
