@@ -2247,13 +2247,18 @@
             <div class="settings-section">
                 <div class="settings-title">
                     <span>📊</span>
-                    Data
+                    Data Management
                 </div>
-                <button class="export-btn" onclick="exportAllData()">
+                <button class="export-btn" onclick="exportAllData()" style="margin-bottom: 12px;">
                     <span>💾</span>
-                    Export All Data
+                    Export All Data (Backup)
                 </button>
-                <button class="export-btn danger" onclick="resetAllData()" style="margin-top: 12px;">
+                <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="handleImportFile(event)">
+                <button class="export-btn" onclick="triggerImport()" style="margin-bottom: 12px; background: linear-gradient(135deg, #10b981, #059669);">
+                    <span>📥</span>
+                    Import Data (Restore)
+                </button>
+                <button class="export-btn danger" onclick="resetAllData()">
                     <span>🗑️</span>
                     Reset All Data
                 </button>
@@ -2355,36 +2360,42 @@
         ];
 
         // ============ APP STATE ============
-        let appState = {
-            currentView: 'dashboard',
-            selectedSubject: null,
-            subjectPath: [],
-            timerProfile: { work: 50, break: 10 },
-            strictnessLevel: 'chief',
-            audioEnvironment: 'none',
-            isTimerRunning: false,
-            isPaused: false,
-            timerSeconds: 0,
-            timerInterval: null,
-            isBreak: false,
-            isFaceDown: true,
-            faceUpWarningTimeout: null,
-            sessions: [],
-            curriculum: JSON.parse(JSON.stringify(DEFAULT_CURRICULUM)),
-            stats: {
-                totalMinutes: 0,
-                streak: 0,
-                lastSessionDate: null,
-                sessionsCompleted: 0,
-                sessionsAttempted: 0,
-                vaultMinutes: 0,
-                subjectMinutes: {}
-            },
-            settings: {
-                scrubMode: true,
-                exitTicketRequired: true
-            }
-        };
+        // Default state - always starts fresh (loaded from localStorage if available)
+        function getDefaultState() {
+            return {
+                currentView: 'dashboard',
+                selectedSubject: null,
+                subjectPath: [],
+                timerProfile: { work: 50, break: 10 },
+                strictnessLevel: 'chief',
+                audioEnvironment: 'none',
+                isTimerRunning: false,
+                isPaused: false,
+                timerSeconds: 0,
+                timerInterval: null,
+                isBreak: false,
+                isFaceDown: true,
+                faceUpWarningTimeout: null,
+                sessions: [],
+                curriculum: JSON.parse(JSON.stringify(DEFAULT_CURRICULUM)),
+                stats: {
+                    totalMinutes: 0,
+                    streak: 0,
+                    lastSessionDate: null,
+                    sessionsCompleted: 0,
+                    sessionsAttempted: 0,
+                    vaultMinutes: 0,
+                    subjectMinutes: {}
+                },
+                settings: {
+                    scrubMode: true,
+                    exitTicketRequired: true
+                }
+            };
+        }
+
+        // Initialize with default state
+        let appState = getDefaultState();
 
         // Audio Context
         let audioContext = null;
@@ -2410,8 +2421,16 @@
         function loadState() {
             const saved = localStorage.getItem('synapse_state');
             if (saved) {
-                const parsed = JSON.parse(saved);
-                appState = { ...appState, ...parsed };
+                try {
+                    const parsed = JSON.parse(saved);
+                    // Only load user data, not runtime state
+                    if (parsed.sessions) appState.sessions = parsed.sessions;
+                    if (parsed.stats) appState.stats = { ...appState.stats, ...parsed.stats };
+                    if (parsed.settings) appState.settings = { ...appState.settings, ...parsed.settings };
+                    if (parsed.curriculum) appState.curriculum = parsed.curriculum;
+                } catch (e) {
+                    console.error('Failed to load saved state:', e);
+                }
             }
         }
 
@@ -3396,6 +3415,61 @@
                     location.reload();
                 }
             }
+        }
+
+        function triggerImport() {
+            document.getElementById('importFileInput').click();
+        }
+
+        function handleImportFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    // Validate the data structure - accept various backup formats
+                    if (importedData.stats || importedData.sessions) {
+                        // Merge imported data into appState
+                        if (importedData.sessions && Array.isArray(importedData.sessions)) {
+                            appState.sessions = importedData.sessions;
+                        }
+                        if (importedData.stats && typeof importedData.stats === 'object') {
+                            appState.stats = { ...getDefaultState().stats, ...importedData.stats };
+                        }
+                        if (importedData.settings && typeof importedData.settings === 'object') {
+                            appState.settings = { ...getDefaultState().settings, ...importedData.settings };
+                        }
+                        if (importedData.curriculum && typeof importedData.curriculum === 'object') {
+                            appState.curriculum = importedData.curriculum;
+                        }
+                        
+                        saveState();
+                        updateDashboard();
+                        updateVaultApps();
+                        populateSubjects();
+                        generateHeatmap();
+                        generatePaceAnalysis();
+                        generateSessionLog();
+                        generateRankList();
+                        generateBadges();
+                        generateLeaderboard();
+                        
+                        showToast('Data imported successfully!', 'success');
+                    } else {
+                        showToast('Invalid backup file format', 'error');
+                    }
+                } catch (err) {
+                    console.error('Import error:', err);
+                    showToast('Failed to import data. Invalid file.', 'error');
+                }
+                
+                // Reset file input
+                event.target.value = '';
+            };
+            reader.readAsText(file);
         }
 
         // ============ TOAST ============
