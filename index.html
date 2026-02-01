@@ -1,21 +1,313 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Synapse - Proof-of-Work Focus Tool</title>
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#0a0e1a">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="/icons/icon-192.png">
-    <meta name="theme-color" content="#0a0e1a">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synapse - Download Files</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0e1a;
+            color: #f9fafb;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #10b981, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .file-section {
+            background: #111827;
+            border: 1px solid #374151;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+        .file-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: #1f2937;
+            border-bottom: 1px solid #374151;
+        }
+        .file-name {
+            font-weight: 600;
+            color: #10b981;
+        }
+        .copy-btn {
+            background: linear-gradient(135deg, #10b981, #3b82f6);
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .copy-btn:hover {
+            transform: scale(1.05);
+        }
+        .copy-btn.copied {
+            background: #22c55e;
+        }
+        .code-block {
+            padding: 16px;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        pre {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .note {
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            color: #9ca3af;
+        }
+        .note strong {
+            color: #f59e0b;
+        }
+        .index-note {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1));
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+        .index-note p {
+            margin-bottom: 12px;
+        }
+        .download-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #10b981, #3b82f6);
+            border: none;
+            border-radius: 12px;
+            padding: 16px 32px;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 Synapse - PWA Files</h1>
+        
+        <div class="note">
+            <strong>📁 Required Files:</strong> To deploy Synapse as a PWA, you need 3 files in the same directory:
+            <ul style="margin-top: 8px; margin-left: 20px;">
+                <li>index.html (the main app)</li>
+                <li>manifest.json (PWA manifest)</li>
+                <li>sw.js (service worker)</li>
+            </ul>
+        </div>
+
+        <div class="index-note">
+            <p><strong>📄 index.html</strong> - The main app file is very large (289KB).</p>
+            <p>Click the button below to view it in a new tab, then use Ctrl+S / Cmd+S to save:</p>
+            <a href="/" target="_blank" class="download-btn">Open index.html in New Tab</a>
+        </div>
+
+        <div class="file-section">
+            <div class="file-header">
+                <span class="file-name">📄 manifest.json</span>
+                <button class="copy-btn" onclick="copyCode('manifest')">Copy</button>
+            </div>
+            <div class="code-block">
+                <pre id="manifest">{
+  "name": "Synapse - Proof-of-Work Focus Tool",
+  "short_name": "Synapse",
+  "description": "A gamified focus timer for medical students with AI-powered exit tickets",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0e1a",
+  "theme_color": "#0a0e1a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Quick Anki Session",
+      "short_name": "Anki",
+      "description": "Start a 10-minute Anki grind session",
+      "url": "/?quickstart=anki"
+    },
+    {
+      "name": "Block Exam Prep",
+      "short_name": "Block",
+      "description": "Start a 60-minute block exam session",
+      "url": "/?quickstart=blocks"
+    }
+  ]
+}</pre>
+            </div>
+        </div>
+
+        <div class="file-section">
+            <div class="file-header">
+                <span class="file-name">📄 sw.js</span>
+                <button class="copy-btn" onclick="copyCode('sw')">Copy</button>
+            </div>
+            <div class="code-block">
+                <pre id="sw">const CACHE_NAME = 'synapse-v1';
+const STATIC_ASSETS = [
+  '/',
+  '/index.html',
+  '/manifest.json'
+];
+
+// Install event - cache static assets
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log('Synapse: Caching static assets');
+      return cache.addAll(STATIC_ASSETS);
+    })
+  );
+  self.skipWaiting();
+});
+
+// Activate event - clean up old caches
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames
+          .filter((name) => name !== CACHE_NAME)
+          .map((name) => caches.delete(name))
+      );
+    })
+  );
+  self.clients.claim();
+});
+
+// Fetch event - serve from cache, fall back to network
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request).then((response) => {
+      if (response) {
+        return response;
+      }
+      return fetch(event.request).then((response) => {
+        if (!response || response.status !== 200 || response.type !== 'basic' || event.request.method !== 'GET') {
+          return response;
+        }
+        const responseToCache = response.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, responseToCache);
+        });
+        return response;
+      });
+    }).catch(() => {
+      return caches.match('/');
+    })
+  );
+});
+
+// Handle push notifications
+self.addEventListener('push', (event) => {
+  const options = {
+    body: event.data ? event.data.text() : 'Time to focus!',
+    icon: '/icons/icon-192.png',
+    badge: '/icons/icon-72.png',
+    vibrate: [200, 100, 200],
+    tag: 'synapse-notification',
+    renotify: true,
+    actions: [
+      { action: 'start', title: 'Start Session' },
+      { action: 'dismiss', title: 'Dismiss' }
+    ]
+  };
+  
+  event.waitUntil(
+    self.registration.showNotification('Synapse', options)
+  );
+});
+
+// Handle notification clicks
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  
+  if (event.action === 'start') {
+    event.waitUntil(clients.openWindow('/?quickstart=anki'));
+  } else {
+    event.waitUntil(clients.openWindow('/'));
+  }
+});</pre>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function copyCode(id) {
+            const codeElement = document.getElementById(id);
+            const text = codeElement.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.target;
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Copy';
+                    btn.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                const btn = event.target;
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Copy';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
 </html>
